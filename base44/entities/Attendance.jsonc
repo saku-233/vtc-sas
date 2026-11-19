@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "properties": {
+    "courseCode": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enum",
+      "enum": [
+        "\u51fa\u5e2d",
+        "\u8fdf\u5230",
+        "\u8bf7\u5047",
+        "\u7f3a\u5e2d"
+      ],
+      "enumColors": [
+        "green",
+        "yellow",
+        "purple",
+        "red"
+      ]
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "courseCode",
+    "date"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "Attendance"
+}

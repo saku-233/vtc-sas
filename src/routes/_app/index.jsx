@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
-import { assignments, courseByCode } from "@/data/sampleData";
+import { listAssignments, listCourses } from "@/lib/server-fns";
 import { dueLabel, DONE_STATUSES } from "@/lib/assignments";
 
 export const Route = createFileRoute("/_app/")({
@@ -11,17 +11,23 @@ export const Route = createFileRoute("/_app/")({
       { name: "description", content: "课程、作业、出席与学习助手，集中在一个学生门户。" },
     ],
   }),
+  loader: async () => {
+    const [courses, assignments] = await Promise.all([listCourses(), listAssignments()]);
+    return { courses, assignments };
+  },
   component: HomePage,
 });
 
 const SECTIONS = [
-  { to: "/courses", title: "我的课程", text: "本学期的科目与授课安排。" },
+  { to: "/courses", title: "我的课程", text: "本学期的科目与上课时间。" },
   { to: "/assignments", title: "我的作业", text: "截止日期、比重与提交状态。" },
   { to: "/attendance", title: "出席", text: "每节课的出席记录与统计。" },
   { to: "/chat", title: "Chatbot", text: "用对话查询你的学业安排。" },
 ];
 
 function HomePage() {
+  const { courses, assignments } = Route.useLoaderData();
+  const courseByCode = Object.fromEntries(courses.map((c) => [c.code, c]));
   const next = [...assignments]
     .filter((item) => !DONE_STATUSES.includes(item.status))
     .sort((a, b) => a.due.localeCompare(b.due))[0];

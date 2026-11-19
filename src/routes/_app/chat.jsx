@@ -1,17 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
-import SectionPending from "@/components/SectionPending";
+import ChatWindow from "@/components/chat/ChatWindow";
+import { listAssignments, listAttendance, listCourses } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/_app/chat")({
-  head: () => ({ meta: [{ title: "Chatbot · VTC-SAS" }] }),
+  head: () => ({ meta: [{ title: "Chatbot · VTC-SAS" }, { name: "description", content: "用对话查询作业、课程与出席。" }] }),
+  ssr: false,
+  loader: async () => {
+    const [courses, assignments, attendance] = await Promise.all([
+      listCourses(),
+      listAssignments(),
+      listAttendance(),
+    ]);
+    return { courses, assignments, attendance };
+  },
   component: ChatPage,
 });
 
 function ChatPage() {
+  const { courses, assignments, attendance } = Route.useLoaderData();
+
   return (
     <div className="space-y-8">
-      <PageHeader eyebrow="学习助手" title="Chatbot" description="用对话查询作业、课程与截止日期。" />
-      <SectionPending title="学习助手正在准备" description="这里会用对话回答你的学业问题，并直接带你去相关的作业或课程。" />
+      <PageHeader
+        eyebrow="学习助手"
+        title="Chatbot"
+        description="用对话查询作业、课程与出席。本地即时回答，无需登录。"
+      />
+      <ChatWindow courses={courses} assignments={assignments} attendance={attendance} />
     </div>
   );
 }

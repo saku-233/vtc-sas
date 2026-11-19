@@ -4,7 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import AssignmentStats from "@/components/assignments/AssignmentStats";
 import AssignmentFilters from "@/components/assignments/AssignmentFilters";
 import AssignmentItem from "@/components/assignments/AssignmentItem";
-import { assignments as sampleAssignments, courseByCode } from "@/data/sampleData";
+import { listAssignments, listCourses } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
 
 export const Route = createFileRoute("/_app/assignments")({
@@ -14,11 +14,18 @@ export const Route = createFileRoute("/_app/assignments")({
       { name: "description", content: "所有课程的作业、截止日期、占总评比重与提交状态集中在一页。" },
     ],
   }),
+  loader: async () => {
+    const [courses, assignments] = await Promise.all([listCourses(), listAssignments()]);
+    return { courses, assignments };
+  },
   component: AssignmentsPage,
 });
 
 function AssignmentsPage() {
-  const [items, setItems] = useState(sampleAssignments);
+  const { courses, assignments } = Route.useLoaderData();
+  const courseByCode = useMemo(() => Object.fromEntries(courses.map((c) => [c.code, c])), [courses]);
+
+  const [items, setItems] = useState(assignments);
   const [filter, setFilter] = useState("全部");
   const [today, setToday] = useState(null);
 
@@ -69,11 +76,7 @@ function AssignmentsPage() {
         eyebrow="2026 秋季学期"
         title="我的作业"
         description="每项作业的截止日期、占总评比重与提交状态，按到期日排列。"
-      >
-        <p className="rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-xs text-muted-foreground">
-          示例数据
-        </p>
-      </PageHeader>
+      />
 
       <AssignmentStats summary={summary} />
 
