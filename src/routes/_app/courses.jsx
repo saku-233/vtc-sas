@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
 import CourseCard from "@/components/courses/CourseCard";
+import CalendarSync from "@/components/courses/CalendarSync";
 import { listCourses } from "@/lib/server-fns";
 
 export const Route = createFileRoute("/_app/courses")({
@@ -28,6 +29,7 @@ function CoursesPage() {
           ))}
         </div>
       )}
+      <CalendarSync />
     </div>
   );
 }
