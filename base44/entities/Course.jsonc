@@ -1,4 +1,5 @@
 {
+  "name": "Course",
   "type": "object",
   "properties": {
     "code": {
@@ -27,6 +28,9 @@
     },
     "credits": {
       "type": "number"
+    },
+    "students": {
+      "type": "number"
     }
   },
   "required": [
@@ -50,6 +54,5 @@
         "role": "admin"
       }
     }
-  },
-  "name": "Course"
+  }
 }
