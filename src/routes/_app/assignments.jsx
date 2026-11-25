@@ -7,6 +7,7 @@ import AssignmentItem from "@/components/assignments/AssignmentItem";
 import { listAssignments, listCourses, listReminders } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
+import CombatQuiz from "@/components/minigame/CombatQuiz";
 
 export const Route = createFileRoute("/_app/assignments")({
   head: () => ({
@@ -106,6 +107,8 @@ function AssignmentsPage() {
           ))}
         </ul>
       )}
+
+      <CombatQuiz />
     </div>
   );
 }
