@@ -79,6 +79,18 @@
   }
 }
 
+/* 教师蓝色主题：覆盖主色调为蓝色系 */
+.theme-teacher {
+  --primary: 212 76% 46%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 212 72% 52%;
+  --accent: 212 34% 92%;
+  --accent-foreground: 212 60% 32%;
+  --sidebar-primary: 212 76% 46%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-ring: 212 72% 52%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

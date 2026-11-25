@@ -13,8 +13,10 @@ export const Route = createFileRoute("/_app")({
 });
 
 function AppLayout() {
+  const { user } = Route.useRouteContext();
+  const isTeacher = user?.role === "admin";
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${isTeacher ? "theme-teacher" : ""}`}>
       <AppNav />
       <main className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <Outlet />

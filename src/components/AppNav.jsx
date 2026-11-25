@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
-const LINKS = [
+const BASE_LINKS = [
   { to: "/", label: "首页" },
   { to: "/courses", label: "我的课程" },
   { to: "/assignments", label: "我的作业" },
@@ -11,11 +11,17 @@ const LINKS = [
   { to: "/reminders", label: "提醒" },
   { to: "/minigame", label: "课程巩固" },
   { to: "/profile", label: "我的档案" },
-  { to: "/teacher", label: "教师后台" },
 ];
 
 export default function AppNav() {
   const { user, logout } = useAuth();
+  const isTeacher = user?.role === "admin";
+  // 教师视角：「我的作业」改为「我发布的作业」，隐藏「课程巩固」，加入「教师后台」
+  const links = isTeacher
+    ? BASE_LINKS.filter((l) => l.to !== "/minigame").map((l) =>
+        l.to === "/assignments" ? { ...l, label: "我发布的作业" } : l
+      ).concat([{ to: "/teacher", label: "教师后台" }])
+    : BASE_LINKS;
   const initial = (user?.email || user?.full_name || "?").charAt(0).toUpperCase();
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
@@ -30,7 +36,7 @@ export default function AppNav() {
         </Link>
 
         <nav className="-mx-1 flex flex-1 items-center gap-0.5 overflow-x-auto py-1">
-          {LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.to}
               to={link.to}
