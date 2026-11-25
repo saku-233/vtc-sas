@@ -22,6 +22,9 @@
         "red"
       ]
     },
+    "student": {
+      "type": "string"
+    },
     "note": {
       "type": "string"
     }
