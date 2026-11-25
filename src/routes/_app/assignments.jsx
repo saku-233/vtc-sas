@@ -7,7 +7,6 @@ import AssignmentItem from "@/components/assignments/AssignmentItem";
 import { listAssignments, listCourses, listReminders } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
-import QuizGame from "@/components/quiz/QuizGame";
 
 export const Route = createFileRoute("/_app/assignments")({
   head: () => ({
@@ -83,8 +82,6 @@ function AssignmentsPage() {
       <AssignmentStats summary={summary} />
 
       <RemindersPanel reminders={reminders} courses={courses} compact />
-
-      <QuizGame />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <AssignmentFilters active={filter} counts={counts} onChange={setFilter} />
