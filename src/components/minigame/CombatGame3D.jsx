@@ -157,7 +157,7 @@ export default function CombatGame3D({ fullscreen = false }) {
 
       {/* question + options — side panel on desktop, bottom on mobile */}
       {phase === "active" && (
-        <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:inset-x-auto sm:right-0 sm:bottom-auto sm:top-1/2 sm:w-[340px] sm:-translate-y-1/2 sm:p-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:bottom-4 sm:inset-x-auto sm:left-1/2 sm:w-[380px] sm:-translate-x-1/2 sm:p-4">
           <div className="rounded-2xl border border-cyan-300/30 bg-slate-900/75 p-4 backdrop-blur-md">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-cyan-300/80">{q.subject}</p>
             <p className="mt-1.5 font-heading text-base text-white">{q.question}</p>
