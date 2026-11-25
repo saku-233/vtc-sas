@@ -19,6 +19,9 @@ export default function CombatGame3D({ fullscreen = false }) {
   const [feedback, setFeedback] = useState(null);
   const [questions, setQuestions] = useState(QUIZ_QUESTIONS);
   const [loadingQ, setLoadingQ] = useState(false);
+  const [popups, setPopups] = useState([]);
+  const [flash, setFlash] = useState(null);
+  const popId = useRef(0);
 
   const sceneRef = useRef(null);
   const locked = useRef(false);
@@ -47,6 +50,8 @@ export default function CombatGame3D({ fullscreen = false }) {
     setHits(0);
     setPicked(null);
     setFeedback(null);
+    setPopups([]);
+    setFlash(null);
     setRemaining(QUESTION_TIME);
     locked.current = false;
     sceneRef.current?.reset();
@@ -78,10 +83,11 @@ export default function CombatGame3D({ fullscreen = false }) {
   }, [phase, qIndex]);
 
   function resolveAnswer(pickedIdx, timeLeft) {
-    const q = QUIZ_QUESTIONS[qIndex];
+    const q = questions[qIndex];
     const correct = pickedIdx === q.answer;
     setPicked(pickedIdx);
     setFeedback(correct ? "hit" : "miss");
+    setFlash({ kind: correct ? "hit" : "miss", key: Date.now() });
 
     if (pickedIdx === null) {
       sceneRef.current?.shake?.();
@@ -99,6 +105,9 @@ export default function CombatGame3D({ fullscreen = false }) {
       const gained = (100 + Math.round(Math.max(0, timeLeft) * 10)) * mult;
       setScore((s) => s + gained);
       setMaxCombo((m) => Math.max(m, nextCombo));
+      const pid = ++popId.current;
+      setPopups((p) => [...p, { id: pid, text: `+${gained}`, kind: "hit" }]);
+      setTimeout(() => setPopups((p) => p.filter((x) => x.id !== pid)), 900);
     } else {
       nextCombo = 0;
       nextHp = hp - 1;
@@ -155,6 +164,59 @@ export default function CombatGame3D({ fullscreen = false }) {
         </div>
       )}
 
+      {/* vignette + scanlines for cockpit depth */}
+      {phase === "active" && (
+        <div className="pointer-events-none absolute inset-0 z-[5]">
+          <div
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(120% 90% at 50% 42%, transparent 55%, rgba(0,0,0,0.55) 100%)" }}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.06] mix-blend-overlay"
+            style={{ backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 1px, transparent 1px, transparent 3px)" }}
+          />
+        </div>
+      )}
+
+      {/* hit / miss screen flash */}
+      {phase === "active" && flash && (
+        <div
+          key={flash.key}
+          className="pointer-events-none absolute inset-0 z-[6]"
+          style={{
+            background: flash.kind === "hit" ? "rgba(16,185,129,0.22)" : "rgba(239,68,68,0.26)",
+            animation: flash.kind === "hit" ? "mg-flash-hit 0.45s ease-out forwards" : "mg-flash-miss 0.5s ease-out forwards",
+          }}
+        />
+      )}
+
+      {/* floating score popups */}
+      {phase === "active" && (
+        <div className="pointer-events-none absolute inset-0 z-[7]">
+          {popups.map((p) => (
+            <span
+              key={p.id}
+              className="absolute left-1/2 top-[50%] font-mono text-2xl font-bold drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
+              style={{ color: "#34d399", animation: "mg-pop 0.9s ease-out forwards" }}
+            >
+              {p.text}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* enemy incoming warning */}
+      {phase === "active" && feedback === "miss" && (
+        <div key={`warn-${qIndex}`} className="pointer-events-none absolute inset-x-0 top-[16%] z-[7] flex justify-center">
+          <span
+            className="rounded-full border border-red-500/60 bg-red-950/40 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-red-300 backdrop-blur-sm"
+            style={{ animation: "mg-warn 0.9s ease-out forwards" }}
+          >
+            ⚠ 敌方锁定 · ENEMY INCOMING
+          </span>
+        </div>
+      )}
+
 
 
       {/* top status strip */}
@@ -168,7 +230,13 @@ export default function CombatGame3D({ fullscreen = false }) {
               <span className="text-[9px] tracking-[0.3em] text-white/40">F-15EX · MISSION</span>
             </div>
             <div className="flex flex-col items-center gap-0.5">
-              <span className="text-cyan-300">COMBO ×{Math.min(5, 1 + Math.floor(combo / 2))}</span>
+              <span
+                key={combo}
+                className="inline-block text-cyan-300"
+                style={{ animation: "mg-combo-pulse 0.32s ease-out" }}
+              >
+                COMBO ×{Math.min(5, 1 + Math.floor(combo / 2))}
+              </span>
               <span className="text-[9px] tracking-[0.3em] text-white/40">CHAIN</span>
             </div>
             <div className="flex flex-col items-end gap-0.5">
@@ -216,7 +284,11 @@ export default function CombatGame3D({ fullscreen = false }) {
       {/* question + options — side panel on desktop, bottom on mobile */}
       {phase === "active" && (
         <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:bottom-4 sm:inset-x-auto sm:left-1/2 sm:w-[380px] sm:-translate-x-1/2 sm:p-4">
-          <div className="rounded-2xl border border-cyan-300/30 bg-slate-900/75 p-4 backdrop-blur-md">
+          <div
+            key={qIndex}
+            className="rounded-2xl border border-cyan-300/30 bg-slate-900/75 p-4 backdrop-blur-md"
+            style={{ animation: "mg-quiz-in 0.28s ease-out" }}
+          >
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-cyan-300/80">{q.subject}</p>
             <p className="mt-1.5 font-heading text-base text-white">{q.question}</p>
             <div className="mt-3.5 grid grid-cols-2 gap-2.5">
@@ -251,7 +323,10 @@ export default function CombatGame3D({ fullscreen = false }) {
       {/* start overlay */}
       {phase === "idle" && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/65 p-5 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-primary/25 bg-background/95 p-6 shadow-2xl">
+          <div
+            className="w-full max-w-md rounded-2xl border border-primary/25 bg-background/95 p-6 shadow-2xl"
+            style={{ animation: "mg-quiz-in 0.32s ease-out" }}
+          >
             <QuizStart onStart={start} />
             {loadingQ ? (
               <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-primary/70">
@@ -265,7 +340,10 @@ export default function CombatGame3D({ fullscreen = false }) {
       {/* result overlay */}
       {phase === "over" && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/65 p-5 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-primary/25 bg-background/95 p-6 shadow-2xl">
+          <div
+            className="w-full max-w-md rounded-2xl border border-primary/25 bg-background/95 p-6 shadow-2xl"
+            style={{ animation: "mg-quiz-in 0.32s ease-out" }}
+          >
             <QuizResult
               score={score}
               maxCombo={maxCombo}

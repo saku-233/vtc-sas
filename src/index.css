@@ -102,6 +102,36 @@
   }
 }
 
+/* Minigame HUD feel animations */
+@keyframes mg-pop {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+  18% { opacity: 1; transform: translate(-50%, -10px) scale(1.12); }
+  100% { opacity: 0; transform: translate(-50%, -72px) scale(1); }
+}
+@keyframes mg-flash-hit {
+  0% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+@keyframes mg-flash-miss {
+  0% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+@keyframes mg-quiz-in {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes mg-combo-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.38); }
+  100% { transform: scale(1); }
+}
+@keyframes mg-warn {
+  0% { opacity: 0; transform: translateY(-8px); }
+  15% { opacity: 1; transform: translateY(0); }
+  82% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
