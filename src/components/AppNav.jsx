@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   LogOut,
   LogIn,
@@ -12,8 +12,11 @@ import {
   Gamepad2,
   User,
   Users,
+  Eye,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useViewAs } from "@/lib/ViewAsContext";
 
 const STUDENT_LINKS = [
   { to: "/", label: "首页", icon: Home, exact: true },
@@ -46,10 +49,20 @@ const LINK_ACTIVE =
 
 export default function AppNav() {
   const { user, logout, navigateToLogin } = useAuth();
-  const isTeacher = user?.role === "admin";
+  const { viewAs, clearViewAs } = useViewAs();
+  const navigate = useNavigate();
+  // 以某用户身份查看时，导航栏按该用户的角色呈现。
+  const effectiveRole = viewAs?.role ?? user?.role;
+  const isTeacher = effectiveRole === "admin";
   const links = user ? (isTeacher ? TEACHER_LINKS : STUDENT_LINKS) : [];
-  const initial = (user?.email || user?.full_name || "?").charAt(0).toUpperCase();
+  const displayName = viewAs?.email || user?.email || user?.full_name || "?";
+  const initial = displayName.charAt(0).toUpperCase();
   const brandTo = user ? (isTeacher ? "/teacher" : "/student/dashboard") : "/";
+
+  function exitViewAs() {
+    clearViewAs();
+    navigate({ to: "/admin" });
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#e5e7eb] bg-white">
@@ -88,15 +101,34 @@ export default function AppNav() {
 
         {user ? (
           <div className="flex shrink-0 items-center gap-2.5">
+            {viewAs ? (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#fff7ed] px-2.5 py-1.5 text-[11px] font-medium whitespace-nowrap text-[#9a3412]"
+                title={`正在以 ${viewAs.email} 身份查看`}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                {viewAs.email}
+              </span>
+            ) : null}
             <span
               className="grid h-8 w-8 place-items-center rounded-full bg-[#e8f1ee] text-[13px] font-bold text-[#265e53]"
-              title={user.email}
+              title={displayName}
             >
               {initial}
             </span>
             <span className="hidden text-[11px] whitespace-nowrap text-[#6b7280] sm:block">
               {isTeacher ? "教师" : "学生"}
             </span>
+            {viewAs ? (
+              <button
+                type="button"
+                onClick={exitViewAs}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs whitespace-nowrap text-[#9a3412] transition-[color,border-color,background-color,transform] duration-nav ease-nav hover:bg-[#ffedd5] active:scale-[.97]"
+              >
+                <X className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
+                退出查看
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={logout}
