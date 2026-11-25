@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { RefreshCw } from "lucide-react";
 import { QUIZ_QUESTIONS, MAX_HP, QUESTION_TIME } from "./quizData";
 import { generateQuizQuestions } from "@/lib/server-fns";
 import Game3DScene from "./Game3DScene";
@@ -218,6 +219,16 @@ export default function CombatGame3D({ fullscreen = false }) {
       )}
 
 
+
+      {/* reset view button */}
+      {phase === "active" && (
+        <button
+          onClick={() => sceneRef.current?.resetView?.()}
+          className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-slate-900/70 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md transition-colors hover:border-cyan-300/60 hover:text-cyan-100"
+        >
+          <RefreshCw className="h-3.5 w-3.5" /> 重置视角
+        </button>
+      )}
 
       {/* top status strip */}
       {phase === "active" && (

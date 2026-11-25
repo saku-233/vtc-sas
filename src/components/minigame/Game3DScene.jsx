@@ -232,6 +232,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       shake: () => apiRef.current.shake && apiRef.current.shake(),
       lockOn: (i) => apiRef.current.lockOn && apiRef.current.lockOn(i),
       enemyAttack: (i) => apiRef.current.enemyAttack && apiRef.current.enemyAttack(i),
+      resetView: () => apiRef.current.resetView && apiRef.current.resetView(),
     }),
     []
   );
@@ -647,7 +648,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function enemyAttack(i) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
-      const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 4.0);
+      const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 5.8);
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
@@ -704,6 +705,12 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       shakeAmt = 0.45;
     }
 
+    function resetView() {
+      orbitTheta = 0;
+      orbitPhi = 0.08;
+      cameraCue = null;
+    }
+
     function lockOn(i) {
       const t = targets[i];
       if (!t) return;
@@ -724,7 +731,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       overlapped = false;
     }
 
-    apiRef.current = { fireAt, reset, shake, lockOn, enemyAttack };
+    apiRef.current = { fireAt, reset, shake, lockOn, enemyAttack, resetView };
 
     let raf;
     const clock = new THREE.Clock();
