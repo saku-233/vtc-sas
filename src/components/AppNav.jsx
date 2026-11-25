@@ -9,6 +9,7 @@ const LINKS = [
   { to: "/reminders", label: "提醒" },
   { to: "/minigame", label: "课程巩固" },
   { to: "/profile", label: "我的档案" },
+  { to: "/teacher", label: "教师后台" },
 ];
 
 export default function AppNav() {
