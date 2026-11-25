@@ -88,7 +88,27 @@ export default function AppNav() {
         </Link>
 
         {links.length > 0 ? (
-          <div className="flex flex-1 justify-center">
+          <>
+          <nav className="hidden flex-1 items-center justify-center gap-1.5 xl:flex">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const active = isLinkActive(pathname, link);
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="inline-flex shrink-0 items-center gap-[7px] rounded-full px-[11px] py-[10px] text-[13px] leading-[18px] whitespace-nowrap transition-[color,background-color,box-shadow,transform] duration-nav ease-nav active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px]"
+                  activeOptions={{ exact: !!link.exact }}
+                  activeProps={{ className: "bg-[#265e53] text-white shadow-[0_4px_10px_rgba(38,94,83,.2)] hover:bg-[#265e53] hover:text-white animate-[nav-settle_.55s_cubic-bezier(.2,.8,.2,1)_both]" }}
+                  inactiveProps={{ className: "text-[#6b7280] hover:bg-[#f1f5f4] hover:text-[#1f2937]" }}
+                >
+                  <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="flex flex-1 justify-center xl:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -131,6 +151,7 @@ export default function AppNav() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          </>
         ) : (
           <div className="flex-1" />
         )}
