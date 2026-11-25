@@ -173,6 +173,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       fireAt: (i, correct) => apiRef.current.fireAt && apiRef.current.fireAt(i, correct),
       reset: () => apiRef.current.reset && apiRef.current.reset(),
       shake: () => apiRef.current.shake && apiRef.current.shake(),
+      lockOn: (i) => apiRef.current.lockOn && apiRef.current.lockOn(i),
     }),
     []
   );
@@ -225,6 +226,33 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     muzzle.position.set(0, 0.02, -1.25);
     jet.add(muzzle);
     jet.userData.muzzle = muzzle;
+
+    // 3D lock-on reticle (shown on the targeted enemy before firing)
+    const lockTex = (() => {
+      const c = document.createElement("canvas");
+      c.width = c.height = 128;
+      const ctx = c.getContext("2d");
+      ctx.strokeStyle = "#34d399";
+      ctx.lineWidth = 6;
+      ctx.lineCap = "round";
+      const m = 16, l = 34;
+      ctx.beginPath();
+      ctx.moveTo(m, m + l); ctx.lineTo(m, m); ctx.lineTo(m + l, m);
+      ctx.moveTo(128 - m - l, m); ctx.lineTo(128 - m, m); ctx.lineTo(128 - m, m + l);
+      ctx.moveTo(128 - m, 128 - m - l); ctx.lineTo(128 - m, 128 - m); ctx.lineTo(128 - m - l, 128 - m);
+      ctx.moveTo(m + l, 128 - m); ctx.lineTo(m, 128 - m); ctx.lineTo(m, 128 - m - l);
+      ctx.stroke();
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    })();
+    const lockReticle = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: lockTex, transparent: true, depthTest: false, opacity: 0 })
+    );
+    lockReticle.scale.set(1.4, 1.4, 1);
+    lockReticle.visible = false;
+    lockReticle.renderOrder = 5;
+    scene.add(lockReticle);
 
     // Smooth banking / pitch state for the player jet
     const jetTarget = { roll: 0, pitch: -0.08, yaw: 0 };
@@ -352,6 +380,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function fireAt(i, correct) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
+      lockReticle.visible = false;
 
       // The airframe holds steady — only a subtle glance toward the target
       const dx = t.position.x - jet.position.x;
@@ -438,6 +467,9 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       jetTarget.yaw = 0;
       recoil = 0;
       muzzle.material.opacity = 0;
+      lockReticle.visible = false;
+      lockReticle.material.opacity = 0;
+      lockReticle.scale.set(1.4, 1.4, 1);
       explosions.forEach((e) => scene.remove(e));
       explosions.length = 0;
       targets.forEach((t) => {
@@ -451,7 +483,16 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       shakeAmt = 0.45;
     }
 
-    apiRef.current = { fireAt, reset, shake };
+    function lockOn(i) {
+      const t = targets[i];
+      if (!t) return;
+      lockReticle.userData = { target: t };
+      lockReticle.visible = true;
+      lockReticle.material.opacity = 0;
+      lockReticle.scale.set(1.4, 1.4, 1);
+    }
+
+    apiRef.current = { fireAt, reset, shake, lockOn };
 
     let raf;
     const clock = new THREE.Clock();
@@ -482,6 +523,16 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       // Fade the muzzle flash
       muzzle.material.opacity = Math.max(0, muzzle.material.opacity - dt * 7);
       muzzle.scale.setScalar(1.1 + (1 - muzzle.material.opacity) * 0.6);
+
+      // Lock-on reticle: follow the target, fade/scale in
+      if (lockReticle.visible) {
+        const tg = lockReticle.userData.target;
+        if (tg && tg.userData.alive) lockReticle.position.copy(tg.position);
+        lockReticle.material.opacity = Math.min(1, lockReticle.material.opacity + dt * 6);
+        const ns = lockReticle.scale.x + (2.4 - lockReticle.scale.x) * (1 - Math.pow(0.02, dt));
+        const pulse = Math.sin(t * 8) * 0.06;
+        lockReticle.scale.set(ns + pulse, ns + pulse, 1);
+      }
 
       const sp = starGeo.attributes.position.array;
       for (let i = 0; i < starCount; i++) {
