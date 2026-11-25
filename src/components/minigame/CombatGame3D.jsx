@@ -137,12 +137,12 @@ export default function CombatGame3D({ fullscreen = false }) {
 
       {/* radar lock-on reticle — only shown after an answer is picked */}
       {phase === "active" && picked !== null && (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+        <div className="pointer-events-none absolute bottom-3 right-3 z-10 sm:bottom-5 sm:right-5">
           <motion.div
-            initial={{ scale: 1.9, opacity: 0 }}
+            initial={{ scale: 1.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="relative h-32 w-32"
+            className="relative h-28 w-28"
           >
             <span
               className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full opacity-50"
