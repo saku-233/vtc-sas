@@ -70,6 +70,12 @@ export default {
   			display: ['var(--font-display)'],
   			mono: ['var(--font-mono)']
   		},
+  		transitionTimingFunction: {
+  			nav: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+  		},
+  		transitionDuration: {
+  			nav: '180ms'
+  		},
   		keyframes: {
   			'accordion-down': {
   				from: {

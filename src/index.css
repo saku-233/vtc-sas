@@ -91,6 +91,17 @@
   --sidebar-ring: 212 72% 52%;
 }
 
+@keyframes nav-settle {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
