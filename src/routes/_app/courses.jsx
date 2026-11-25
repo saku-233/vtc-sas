@@ -13,13 +13,15 @@ export const Route = createFileRoute("/_app/courses")({
 
 function CoursesPage() {
   const courses = Route.useLoaderData();
+  const { user } = Route.useRouteContext();
+  const isTeacher = user?.role === "admin";
 
   return (
     <div className="space-y-8">
       <PageHeader
         eyebrow="2026 秋季学期"
-        title="我的课程"
-        description="本学期修读的科目、上课时间与授课老师。"
+        title={isTeacher ? "我教授的课程" : "我的课程"}
+        description={isTeacher ? "本学期授课科目、时间与课室。" : "本学期修读的科目、上课时间与授课老师。"}
       />
       {courses.length === 0 ? (
         <p className="text-sm text-muted-foreground">还没有课程资料。</p>
@@ -32,13 +34,15 @@ function CoursesPage() {
       )}
       <CalendarSync />
 
-      <div className="space-y-3 pt-2">
-        <div>
-          <h2 className="font-heading text-xl text-foreground">课程巩固知识空战</h2>
-          <p className="mt-1 text-sm text-muted-foreground">用学科问答巩固本学期知识，答对击落敌机。</p>
+      {isTeacher ? null : (
+        <div className="space-y-3 pt-2">
+          <div>
+            <h2 className="font-heading text-xl text-foreground">课程巩固知识空战</h2>
+            <p className="mt-1 text-sm text-muted-foreground">用学科问答巩固本学期知识，答对击落敌机。</p>
+          </div>
+          <CombatQuiz />
         </div>
-        <CombatQuiz />
-      </div>
+      )}
     </div>
   );
 }
