@@ -591,6 +591,24 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const _dir = new THREE.Vector3();
     const _fwd = new THREE.Vector3(0, 0, -1);
 
+    // Mountain avoidance: returns a lateral + vertical push away from any peak near pos
+    function computeAvoid(px, py, pz) {
+      let ax = 0, ay = 0;
+      for (let i = 0; i < peaks.length; i++) {
+        const p = peaks[i].cone.position;
+        const dz = p.z - pz;
+        if (dz < -3 || dz > 8) continue; // only peaks ahead or just passing
+        const dx = p.x - px;
+        const adx = Math.abs(dx);
+        if (adx > 9) continue;
+        const w = (1 - Math.min(1, Math.abs(dz) / 7)) * (1 - adx / 9);
+        if (w <= 0) continue;
+        ax += -Math.sign(dx || (i % 2 ? 1 : -1)) * w * 2.4; // push away horizontally
+        ay += w * 1.8; // climb over
+      }
+      return { ax, ay };
+    }
+
     function fireAt(i, correct) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
@@ -842,10 +860,11 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       // Recoil pushes the jet back, then settles
       recoil *= Math.pow(0.02, dt);
 
-      jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05;
+      const pjAv = computeAvoid(0, 0.35, jet.position.z);
+      jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05 + pjAv.ay;
       jet.position.z = 1.4 + recoil;
       jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03;
-      jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015;
+      jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015 - pjAv.ay * 0.04;
       jet.rotation.y = jetState.yaw;
       (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1 + Math.sin(t * 18) * 0.2));
 
@@ -960,10 +979,13 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           }
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays 看前 (-z)
         } else {
-          tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
+          const av = computeAvoid(TARGET_X[i], tg.userData.baseY, TARGET_Z);
+          tg.position.x = TARGET_X[i] + av.ax;
+          tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22 + av.ay;
           tg.rotation.roll = (tg.rotation.roll || 0) + dt * tg.userData.spin;
-          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.12;
+          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.08 + av.ax * 0.14;
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08;
+          tg.rotation.x = -av.ay * 0.05;
         }
       });
 
