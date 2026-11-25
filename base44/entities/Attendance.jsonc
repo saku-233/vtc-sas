@@ -25,6 +25,9 @@
     "student": {
       "type": "string"
     },
+    "studentId": {
+      "type": "string"
+    },
     "note": {
       "type": "string"
     }

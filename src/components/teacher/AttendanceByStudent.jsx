@@ -48,7 +48,7 @@ export default function AttendanceByStudent({ attendance, courses }) {
                 <div>
                   <h3 className="font-heading text-base text-foreground">{name}</h3>
                   <p className="text-[11px] text-muted-foreground">
-                    共 {total} 节 · 出席 {present} · 缺席 {absent}
+                    {rows[0]?.studentId ? `学号 ${rows[0].studentId} · ` : ""}共 {total} 节 · 出席 {present} · 缺席 {absent}
                   </p>
                 </div>
               </div>
