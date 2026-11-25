@@ -123,35 +123,83 @@ export default function CombatGame3D({ fullscreen = false }) {
     >
       <Game3DScene ref={sceneRef} />
 
-      {/* top HUD */}
+      {/* cockpit corner brackets */}
+      {phase === "active" && (
+        <div className="pointer-events-none absolute inset-3 z-10 sm:inset-5">
+          <span className="absolute left-0 top-0 h-7 w-7 border-l-2 border-t-2 border-cyan-300/50" />
+          <span className="absolute right-0 top-0 h-7 w-7 border-r-2 border-t-2 border-cyan-300/50" />
+          <span className="absolute bottom-0 left-0 h-7 w-7 border-b-2 border-l-2 border-cyan-300/50" />
+          <span className="absolute bottom-0 right-0 h-7 w-7 border-b-2 border-r-2 border-cyan-300/50" />
+        </div>
+      )}
+
+      {/* center targeting reticle */}
+      {phase === "active" && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <div className={`relative h-24 w-24 transition-transform duration-300 ${feedback === "hit" ? "scale-110" : feedback === "miss" ? "rotate-45" : ""}`}>
+            <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-cyan-300/80" />
+            <span className="absolute left-1/2 bottom-0 h-3 w-px -translate-x-1/2 bg-cyan-300/80" />
+            <span className="absolute top-1/2 left-0 h-px w-3 -translate-y-1/2 bg-cyan-300/80" />
+            <span className="absolute top-1/2 right-0 h-px w-3 -translate-y-1/2 bg-cyan-300/80" />
+            <span className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/40" />
+            <span className={`absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${low ? "bg-red-400" : "bg-cyan-300"}`} />
+          </div>
+        </div>
+      )}
+
+      {/* top status strip */}
       {phase === "active" && (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 p-4 sm:p-5">
-          <div className="flex items-start justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-white/90">
-            <span className="text-cyan-300">
-              TGT {String(qIndex + 1).padStart(2, "0")} / {String(QUIZ_QUESTIONS.length).padStart(2, "0")}
-            </span>
-            <span className="text-cyan-300">COMBO ×{Math.min(5, 1 + Math.floor(combo / 2))}</span>
-            <span className="text-cyan-300">SCORE {score}</span>
+          <div className="flex items-start justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-white/90">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-cyan-300">
+                TGT {String(qIndex + 1).padStart(2, "0")} / {String(QUIZ_QUESTIONS.length).padStart(2, "0")}
+              </span>
+              <span className="text-[9px] tracking-[0.3em] text-white/40">F-15EX · MISSION</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-cyan-300">COMBO ×{Math.min(5, 1 + Math.floor(combo / 2))}</span>
+              <span className="text-[9px] tracking-[0.3em] text-white/40">CHAIN</span>
+            </div>
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-cyan-300">SCORE {String(score).padStart(5, "0")}</span>
+              <span className="text-[9px] tracking-[0.3em] text-white/40">POINTS</span>
+            </div>
           </div>
           <div className="mt-3 flex items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300/70">T-MINUS</span>
+            <div className="h-2 flex-1 overflow-hidden rounded-sm bg-white/10">
               <div
-                className={`h-full rounded-full transition-[width] duration-75 ${low ? "bg-red-500" : "bg-cyan-300"}`}
+                className={`h-full rounded-sm transition-[width] duration-75 ${low ? "bg-red-500 shadow-[0_0_10px_0] shadow-red-500/70" : "bg-cyan-300"}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className={`font-mono text-xs ${low ? "text-red-400" : "text-white/80"}`}>
+            <span className={`font-mono text-xs tabular-nums ${low ? "text-red-400" : "text-white/80"}`}>
               {remaining.toFixed(1)}s
             </span>
-            <div className="flex gap-1.5">
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-red-400/80">HULL</span>
+            <div className="flex flex-1 gap-1">
               {Array.from({ length: MAX_HP }).map((_, i) => (
                 <span
                   key={i}
-                  className={`h-2.5 w-2.5 rounded-full ${i < hp ? "bg-red-500 shadow-[0_0_8px_0] shadow-red-500/60" : "bg-white/15"}`}
+                  className={`h-1.5 flex-1 rounded-[1px] transition-all ${
+                    i < hp ? "bg-red-500 shadow-[0_0_8px_0] shadow-red-500/60" : "bg-white/10"
+                  }`}
                 />
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* bottom-left telemetry readout */}
+      {phase === "active" && (
+        <div className="pointer-events-none absolute bottom-3 left-3 z-10 hidden font-mono text-[10px] uppercase leading-relaxed tracking-[0.2em] text-cyan-300/60 sm:block">
+          <p>ALT 14,000 FT</p>
+          <p>SPD 0.92 M</p>
+          <p>HDG 270°</p>
         </div>
       )}
 
