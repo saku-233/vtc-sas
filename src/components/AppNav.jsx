@@ -7,6 +7,7 @@ const LINKS = [
   { to: "/attendance", label: "出席" },
   { to: "/chat", label: "Chatbot" },
   { to: "/reminders", label: "提醒" },
+  { to: "/minigame", label: "课程巩固" },
 ];
 
 export default function AppNav() {
