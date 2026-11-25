@@ -231,6 +231,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       reset: () => apiRef.current.reset && apiRef.current.reset(),
       shake: () => apiRef.current.shake && apiRef.current.shake(),
       lockOn: (i) => apiRef.current.lockOn && apiRef.current.lockOn(i),
+      enemyAttack: (i) => apiRef.current.enemyAttack && apiRef.current.enemyAttack(i),
     }),
     []
   );
@@ -352,7 +353,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const targets = [];
     for (let i = 0; i < TARGET_COUNT; i++) {
       const g = buildSu30();
-      g.rotation.y = Math.PI; // nose toward player
+      g.rotation.y = 0; // 看前：nose points away from the player (-z)
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({ map: makeLabelTexture(String.fromCharCode(65 + i), "#ffd9a0"), transparent: true })
       );
@@ -571,6 +572,60 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       });
     }
 
+    function enemyFire(from) {
+      const end = jet.position.clone();
+      const missile = new THREE.Group();
+      const mBody = new THREE.Mesh(missileBodyGeo, missileBodyMat);
+      mBody.rotation.x = Math.PI / 2;
+      missile.add(mBody);
+      const mNose = new THREE.Mesh(missileNoseGeo, missileNoseMat);
+      mNose.rotation.x = -Math.PI / 2;
+      mNose.position.set(0, 0, -0.33);
+      missile.add(mNose);
+      for (const s of [-1, 1]) {
+        const fin = new THREE.Mesh(finGeo, finMat);
+        fin.position.set(s * 0.06, 0, 0.2);
+        missile.add(fin);
+      }
+      const exhaust = new THREE.Mesh(exhaustGeo, exhaustMat);
+      exhaust.position.set(0, 0, 0.28);
+      missile.add(exhaust);
+      missile.userData.exhaust = exhaust;
+      _dir.copy(end).sub(from).normalize();
+      missile.quaternion.setFromUnitVectors(_fwd, _dir);
+      missile.position.copy(from);
+      scene.add(missile);
+      const trailLen = 14;
+      const trailPos = new Float32Array(trailLen * 3);
+      for (let k = 0; k < trailLen; k++) {
+        trailPos[k * 3] = from.x;
+        trailPos[k * 3 + 1] = from.y;
+        trailPos[k * 3 + 2] = from.z;
+      }
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
+      const trail = new THREE.Line(trailGeo, trailMat);
+      scene.add(trail);
+      projectiles.push({
+        bullet: missile, trail, trailGeo, trailLen, end, correct: false, target: null, index: -1,
+        speed: 14 + Math.random() * 4, birth: clock.elapsedTime, ignited: true, dropDur: 0, dropDir: new THREE.Vector3(),
+      });
+    }
+
+    function enemyAttack(i) {
+      const t = targets[i];
+      if (!t || !t.userData.alive) return;
+      t.userData.attack = {
+        phase: "dive",
+        t0: clock.elapsedTime,
+        diveDur: 0.32,
+        returnDur: 0.34,
+        startPos: t.position.clone(),
+        behindPos: new THREE.Vector3(jet.position.x * 0.4, 1.4, 4.0),
+        base: new THREE.Vector3(TARGET_X[i], TARGET_Y[i], TARGET_Z),
+      };
+    }
+
     function reset() {
       projectiles.forEach((p) => {
         scene.remove(p.bullet);
@@ -596,10 +651,11 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       overlapped = false;
       explosions.forEach((e) => scene.remove(e));
       explosions.length = 0;
-      targets.forEach((t) => {
+      targets.forEach((t, idx) => {
         t.visible = true;
         t.userData.alive = true;
-        t.position.z = TARGET_Z;
+        t.userData.attack = null;
+        t.position.set(TARGET_X[idx], TARGET_Y[idx], TARGET_Z);
       });
     }
 
@@ -627,7 +683,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       overlapped = false;
     }
 
-    apiRef.current = { fireAt, reset, shake, lockOn };
+    apiRef.current = { fireAt, reset, shake, lockOn, enemyAttack };
 
     let raf;
     const clock = new THREE.Clock();
@@ -731,10 +787,32 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
       targets.forEach((tg, i) => {
         if (!tg.userData.alive) return;
-        tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
-        tg.rotation.roll = (tg.rotation.roll || 0) + dt * tg.userData.spin;
-        tg.rotation.z = Math.sin(t * 0.6 + i) * 0.12;
-        tg.rotation.y = Math.PI + Math.sin(t * 0.5 + i) * 0.08;
+        const atk = tg.userData.attack;
+        if (atk && atk.phase) {
+          // Enemy attack run: dive behind the player → fire → return to base
+          const a = t - atk.t0;
+          if (atk.phase === "dive") {
+            const k = Math.min(1, a / atk.diveDur);
+            const e = 1 - Math.pow(1 - k, 2);
+            tg.position.lerpVectors(atk.startPos, atk.behindPos, e);
+            if (k >= 1) { atk.phase = "fire"; atk.t0 = t; enemyFire(tg.position); }
+          } else if (atk.phase === "fire") {
+            tg.position.copy(atk.behindPos);
+            if (a > 0.12) { atk.phase = "return"; atk.t0 = t; atk.startPos = tg.position.clone(); }
+          } else if (atk.phase === "return") {
+            const k = Math.min(1, a / atk.returnDur);
+            const e = 1 - Math.pow(1 - k, 2);
+            tg.position.lerpVectors(atk.startPos, atk.base, e);
+            if (k >= 1) { tg.position.copy(atk.base); atk.phase = null; }
+          }
+          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.12;
+          tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays 看前 (-z)
+        } else {
+          tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
+          tg.rotation.roll = (tg.rotation.roll || 0) + dt * tg.userData.spin;
+          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.12;
+          tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08;
+        }
       });
 
       for (let i = projectiles.length - 1; i >= 0; i--) {
@@ -757,7 +835,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         const dist = _dir.length();
         if (dist < 0.45) {
           explode(p.end, p.correct);
-          if (p.correct) {
+          if (p.correct && p.target) {
             p.target.visible = false;
             p.target.userData.alive = false;
           } else {

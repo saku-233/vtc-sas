@@ -85,8 +85,10 @@ export default function CombatGame3D({ fullscreen = false }) {
 
     if (pickedIdx === null) {
       sceneRef.current?.shake?.();
+      sceneRef.current?.enemyAttack?.(Math.floor(Math.random() * 4));
     } else {
       sceneRef.current?.fireAt(pickedIdx, correct);
+      if (!correct) sceneRef.current?.enemyAttack?.(pickedIdx);
     }
 
     let nextHp = hp;
