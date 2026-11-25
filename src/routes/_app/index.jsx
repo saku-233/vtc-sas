@@ -73,10 +73,10 @@ function WelcomePage() {
               href="https://moodle.vtc.edu.hk/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/5 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:scale-[1.03] hover:border-white/80 hover:bg-white/20 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]"
             >
-              <GraduationCap className="h-4 w-4" />
-              Login to VTC Moodle
+              <GraduationCap className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-px" />
+              <span className="transition-transform duration-300 group-hover:translate-x-0.5">Login to VTC Moodle</span>
             </a>
           </div>
         </div>
