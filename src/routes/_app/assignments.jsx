@@ -80,11 +80,12 @@ function AssignmentsPage() {
         description="每项作业的截止日期、占总评比重与提交状态，按到期日排列。"
       />
 
-      <CombatQuiz />
-
       <AssignmentStats summary={summary} />
 
-      <RemindersPanel reminders={reminders} courses={courses} compact />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <RemindersPanel reminders={reminders} courses={courses} compact />
+        <CombatQuiz />
+      </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <AssignmentFilters active={filter} counts={counts} onChange={setFilter} />
