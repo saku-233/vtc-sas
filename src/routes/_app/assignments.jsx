@@ -7,7 +7,6 @@ import AssignmentItem from "@/components/assignments/AssignmentItem";
 import { listAssignments, listCourses, listReminders } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
-import CombatQuiz from "@/components/minigame/CombatQuiz";
 
 export const Route = createFileRoute("/_app/assignments")({
   head: () => ({
@@ -82,10 +81,7 @@ function AssignmentsPage() {
 
       <AssignmentStats summary={summary} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <RemindersPanel reminders={reminders} courses={courses} compact />
-        <CombatQuiz />
-      </div>
+      <RemindersPanel reminders={reminders} courses={courses} />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <AssignmentFilters active={filter} counts={counts} onChange={setFilter} />
