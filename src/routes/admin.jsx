@@ -1,8 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, LogOut, Shield, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { listUsers } from "@/lib/server-fns";
 import UserManagement from "@/components/teacher/UserManagement";
+import AdminLogin from "@/components/admin/AdminLogin";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
@@ -18,8 +19,14 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminConsole() {
-  const { user, isLoadingAuth, logout, navigateToLogin } = useAuth();
+  const { user, isLoadingAuth, logout, refresh } = useAuth();
+  const router = useRouter();
   const { users } = Route.useLoaderData();
+
+  async function handleLoggedIn() {
+    await refresh();
+    router.invalidate();
+  }
 
   if (isLoadingAuth) {
     return (
@@ -30,21 +37,7 @@ function AdminConsole() {
   }
 
   if (!user) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-background px-6">
-        <div className="max-w-sm space-y-4 text-center">
-          <Shield className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="font-heading text-xl text-foreground">需要登录</h1>
-          <p className="text-sm text-muted-foreground">此入口仅限管理员访问，请先登录。</p>
-          <button
-            onClick={() => navigateToLogin()}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
-          >
-            前往登录
-          </button>
-        </div>
-      </div>
-    );
+    return <AdminLogin onLoggedIn={handleLoggedIn} />;
   }
 
   if (user.role !== "admin") {
