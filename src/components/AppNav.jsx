@@ -11,6 +11,7 @@ import {
   Bell,
   Gamepad2,
   User,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -33,6 +34,7 @@ const TEACHER_LINKS = [
   { to: "/teacher/attendance", label: "出席", icon: CalendarCheck },
   { to: "/teacher/chat", label: "Chatbot", icon: MessageSquare },
   { to: "/teacher/reminders", label: "提醒", icon: Bell },
+  { to: "/teacher/users", label: "用户管理", icon: Users },
   { to: "/teacher/profile", label: "我的档案", icon: User },
 ];
 

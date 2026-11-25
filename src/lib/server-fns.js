@@ -53,6 +53,20 @@ export const bulkDeleteAssignments = createServerFn({ method: "POST" })
   .validator(z.object({ ids: z.array(z.string()).min(1).max(500) }))
   .handler(({ data, context }) => context.getBase44().entities.Assignment.deleteMany({ id: { $in: data.ids } }));
 
+export const listUsers = createServerFn({ method: "GET" }).handler(async ({ context }) => {
+  const base44 = context.getBase44();
+  const users = await base44.entities.User.list("-created_date", 200);
+  return users;
+});
+
+export const inviteAppUser = createServerFn({ method: "POST" })
+  .validator(z.object({ email: z.string().email(), role: z.enum(["admin", "user"]) }))
+  .handler(async ({ data, context }) => {
+    const base44 = context.getBase44();
+    await base44.users.inviteUser(data.email, data.role);
+    return { success: true };
+  });
+
 export const listReminders = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   const base44 = context.getBase44();
   const { items } = await base44.entities.Reminder.list({ sort: "-created_date", limit: 100 });
