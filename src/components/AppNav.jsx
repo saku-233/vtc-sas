@@ -60,7 +60,11 @@ export default function AppNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // 以某用户身份查看时，导航栏按该用户的角色呈现。
   const effectiveRole = viewAs?.role ?? user?.role;
-  const isTeacher = effectiveRole === "admin";
+  // 导航与主题按当前页面区域决定：学生区显示学生导航，教师区显示教师导航，
+  // 其余区域才回退到用户角色，避免管理员浏览学生页时出现「我发布的作业」。
+  const isStudentArea = pathname.startsWith("/student");
+  const isTeacherArea = pathname.startsWith("/teacher");
+  const isTeacher = isTeacherArea || (!isStudentArea && effectiveRole === "admin");
   const links = user ? (isTeacher ? TEACHER_LINKS : STUDENT_LINKS) : [];
   const displayName = viewAs?.email || user?.email || user?.full_name || "?";
   const initial = displayName.charAt(0).toUpperCase();

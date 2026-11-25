@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import AppNav from "@/components/AppNav";
 import { authQuery } from "@/lib/AuthContext";
 import { useViewAs } from "@/lib/ViewAsContext";
@@ -16,9 +16,13 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const { user } = Route.useRouteContext();
   const { viewAs } = useViewAs();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   // 以某用户身份查看时，按该用户的角色应用主题。
   const effectiveRole = viewAs?.role ?? user?.role;
-  const isTeacher = effectiveRole === "admin";
+  // 主题按当前页面区域决定，与学生/教师导航保持一致。
+  const isStudentArea = pathname.startsWith("/student");
+  const isTeacherArea = pathname.startsWith("/teacher");
+  const isTeacher = isTeacherArea || (!isStudentArea && effectiveRole === "admin");
   return (
     <div className={`min-h-screen bg-background ${isTeacher ? "theme-teacher" : ""}`}>
       <AppNav />
