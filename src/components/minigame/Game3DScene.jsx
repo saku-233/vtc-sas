@@ -465,6 +465,30 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       explosions.push(exp);
     }
 
+    // Shared, reusable missile resources — created once, never per shot
+    const missileBodyGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8);
+    const missileBodyMat = new THREE.MeshStandardMaterial({ color: 0xe8eef5, metalness: 0.4, roughness: 0.5 });
+    const missileNoseGeo = new THREE.ConeGeometry(0.05, 0.16, 8);
+    const missileNoseMat = new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 });
+    const finGeo = new THREE.BoxGeometry(0.02, 0.12, 0.12);
+    const finMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b3, metalness: 0.3, roughness: 0.6 });
+    const exhaustGeo = new THREE.SphereGeometry(0.07, 8, 8);
+    const exhaustMat = new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
+    const trailMat = new THREE.LineBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+    const launchFlash = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending })
+    );
+    launchFlash.visible = false;
+    scene.add(launchFlash);
+    const sharedMissileResources = [
+      missileBodyGeo, missileBodyMat, missileNoseGeo, missileNoseMat,
+      finGeo, finMat, exhaustGeo, exhaustMat, trailMat, launchFlash.geometry, launchFlash.material,
+    ];
+    // scratch vectors to avoid per-frame allocations
+    const _dir = new THREE.Vector3();
+    const _fwd = new THREE.Vector3(0, 0, -1);
+
     function fireAt(i, correct) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
@@ -490,42 +514,38 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       const start = new THREE.Vector3();
       if (mount) mount.getWorldPosition(start);
       else { start.copy(jet.position); start.y += 0.1; start.z -= 1.0; }
-      const end = t.position.clone();
-      const dir = end.clone().sub(start).normalize();
 
-      // Missile body (forward = -z), with exhaust glow
+      // Reusable ignition flash at the pylon (no per-shot allocation)
+      launchFlash.position.copy(start);
+      launchFlash.material.opacity = 1;
+      launchFlash.scale.setScalar(0.6);
+      launchFlash.visible = true;
+
+      const end = t.position.clone();
+
+      // Missile body reusing shared geometry + material (per-instance transform only)
       const missile = new THREE.Group();
-      const mBody = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8),
-        new THREE.MeshStandardMaterial({ color: 0xe8eef5, metalness: 0.4, roughness: 0.5 })
-      );
+      const mBody = new THREE.Mesh(missileBodyGeo, missileBodyMat);
       mBody.rotation.x = Math.PI / 2;
       missile.add(mBody);
-      const mNose = new THREE.Mesh(
-        new THREE.ConeGeometry(0.05, 0.16, 8),
-        new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 })
-      );
+      const mNose = new THREE.Mesh(missileNoseGeo, missileNoseMat);
       mNose.rotation.x = -Math.PI / 2;
       mNose.position.set(0, 0, -0.33);
       missile.add(mNose);
       for (const s of [-1, 1]) {
-        const fin = new THREE.Mesh(
-          new THREE.BoxGeometry(0.02, 0.12, 0.12),
-          new THREE.MeshStandardMaterial({ color: 0x9aa6b3, metalness: 0.3, roughness: 0.6 })
-        );
+        const fin = new THREE.Mesh(finGeo, finMat);
         fin.position.set(s * 0.06, 0, 0.2);
         missile.add(fin);
       }
-      const exhaust = new THREE.Mesh(
-        new THREE.SphereGeometry(0.07, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
-      );
+      const exhaust = new THREE.Mesh(exhaustGeo, exhaustMat);
       exhaust.position.set(0, 0, 0.28);
+      exhaust.scale.setScalar(0.1); // dim during the drop phase
       missile.add(exhaust);
       missile.userData.exhaust = exhaust;
 
-      missile.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+      // Release orientation matches the jet; it re-orients toward the target on ignition
       missile.position.copy(start);
+      missile.quaternion.copy(jet.quaternion);
       scene.add(missile);
 
       const trailLen = 16;
@@ -537,21 +557,29 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       }
       const trailGeo = new THREE.BufferGeometry();
       trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
-      const trail = new THREE.Line(
-        trailGeo,
-        new THREE.LineBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending })
-      );
+      const trail = new THREE.Line(trailGeo, trailMat);
+      trail.visible = false; // hidden until ignition
       scene.add(trail);
 
-      projectiles.push({ bullet: missile, trail, trailLen, end, correct, target: t, index: i, speed: 46 + Math.random() * 8 });
+      projectiles.push({
+        bullet: missile, trail, trailGeo, trailLen, end, correct, target: t, index: i,
+        speed: 42 + Math.random() * 8,
+        birth: clock.elapsedTime,
+        dropDur: 0.14,
+        ignited: false,
+        dropDir: new THREE.Vector3(0, -0.6, 0.8).normalize(),
+      });
     }
 
     function reset() {
       projectiles.forEach((p) => {
         scene.remove(p.bullet);
         scene.remove(p.trail);
+        p.trailGeo.dispose();
       });
       projectiles.length = 0;
+      launchFlash.visible = false;
+      launchFlash.material.opacity = 0;
       jetTarget.roll = 0;
       jetTarget.pitch = -0.08;
       jetTarget.yaw = 0;
@@ -631,6 +659,13 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       muzzle.material.opacity = Math.max(0, muzzle.material.opacity - dt * 7);
       muzzle.scale.setScalar(1.1 + (1 - muzzle.material.opacity) * 0.6);
 
+      // Fade the reusable launch flash
+      if (launchFlash.visible) {
+        launchFlash.material.opacity = Math.max(0, launchFlash.material.opacity - dt * 6);
+        launchFlash.scale.setScalar(0.6 + (1 - launchFlash.material.opacity) * 1.4);
+        if (launchFlash.material.opacity <= 0) launchFlash.visible = false;
+      }
+
       // Lock-on bracket: stationary on the target (fade in only)
       if (lockReticle.visible) {
         const tg = lockReticle.userData.target;
@@ -704,8 +739,22 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
-        const dir = p.end.clone().sub(p.bullet.position);
-        const dist = dir.length();
+        const age = t - p.birth;
+        // --- drop phase: missile falls away from the pylon before ignition ---
+        if (!p.ignited) {
+          if (age < p.dropDur) {
+            p.bullet.position.addScaledVector(p.dropDir, 2.4 * dt);
+            if (p.bullet.userData.exhaust) p.bullet.userData.exhaust.scale.setScalar(0.1 + (age / p.dropDur) * 0.3);
+            continue;
+          }
+          // ignition: exhaust flares, trail ignites, re-orient toward target
+          p.ignited = true;
+          if (p.bullet.userData.exhaust) p.bullet.userData.exhaust.scale.setScalar(1);
+          p.trail.visible = true;
+        }
+        // --- cruise / homing phase ---
+        _dir.copy(p.end).sub(p.bullet.position);
+        const dist = _dir.length();
         if (dist < 0.45) {
           explode(p.end, p.correct);
           if (p.correct) {
@@ -716,10 +765,12 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           }
           scene.remove(p.bullet);
           scene.remove(p.trail);
+          p.trailGeo.dispose();
           projectiles.splice(i, 1);
         } else {
-          p.bullet.position.add(dir.normalize().multiplyScalar(Math.max(0.4, p.speed * dt)));
-          p.bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir.normalize());
+          _dir.normalize();
+          p.bullet.position.addScaledVector(_dir, Math.max(0.4, p.speed * dt));
+          p.bullet.quaternion.setFromUnitVectors(_fwd, _dir);
           if (p.bullet.userData.exhaust) p.bullet.userData.exhaust.scale.setScalar(1 + Math.sin(t * 40) * 0.35);
           // Update the trail: shift older points, push current
           const arr = p.trail.geometry.attributes.position.array;
@@ -794,6 +845,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           else o.material.dispose();
         }
       });
+      sharedMissileResources.forEach((r) => r.dispose?.());
     };
   }, []);
 
