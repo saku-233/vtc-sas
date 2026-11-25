@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 
 const STUDENT_LINKS = [
   { to: "/", label: "首页" },
+  { to: "/dashboard", label: "仪表板" },
   { to: "/courses", label: "我的课程" },
   { to: "/assignments", label: "我的作业" },
   { to: "/attendance", label: "出席" },

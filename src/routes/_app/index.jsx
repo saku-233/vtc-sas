@@ -8,8 +8,9 @@ import {
   Bell,
   Gamepad2,
   User,
+  LogIn,
 } from "lucide-react";
-import { studentOnly } from "@/lib/routeGuards";
+import { useAuth } from "@/lib/AuthContext";
 
 export const Route = createFileRoute("/_app/")({
   head: () => ({
@@ -18,7 +19,6 @@ export const Route = createFileRoute("/_app/")({
       { name: "description", content: "欢迎来到 VTC-SAS 学生学业管理平台。" },
     ],
   }),
-  beforeLoad: studentOnly,
   component: WelcomePage,
 });
 
@@ -34,6 +34,10 @@ const NAV_CARDS = [
 ];
 
 function WelcomePage() {
+  const { user, navigateToLogin } = useAuth();
+  const isTeacher = user?.role === "admin";
+  const homePath = isTeacher ? "/teacher" : "/dashboard";
+
   return (
     <div className="space-y-10">
       <section className="overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-primary/10 via-card to-card p-8 sm:p-12">
@@ -42,30 +46,51 @@ function WelcomePage() {
           欢迎来到 VTC-SAS 平台
         </h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          课程、作业、出席与学习助手集中在一个学生门户。选择下方任一入口开始管理你的学习生活。
+          课程、作业、出席与学习助手集中在一个学生门户。登录后即可进入你的学习工作台。
         </p>
+        <div className="mt-7">
+          {user ? (
+            <Link
+              to={homePath}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              {isTeacher ? "进入教师后台" : "进入仪表板"}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigateToLogin()}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <LogIn className="h-4 w-4" />
+              登录
+            </button>
+          )}
+        </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {NAV_CARDS.map((card) => (
-          <Link
-            key={card.to}
-            to={card.to}
-            className="group flex flex-col gap-3 rounded-2xl border border-border/80 bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_20px_44px_-30px_rgba(20,40,35,0.5)]"
-          >
-            <div className="flex items-center justify-between">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                <card.icon className="h-5 w-5" />
-              </span>
-              <span className="text-lg text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5">
-                →
-              </span>
-            </div>
-            <h2 className="font-heading text-lg text-foreground">{card.title}</h2>
-            <p className="text-sm text-muted-foreground">{card.text}</p>
-          </Link>
-        ))}
-      </div>
+      {user && !isTeacher ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NAV_CARDS.map((card) => (
+            <Link
+              key={card.to}
+              to={card.to}
+              className="group flex flex-col gap-3 rounded-2xl border border-border/80 bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_20px_44px_-30px_rgba(20,40,35,0.5)]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <card.icon className="h-5 w-5" />
+                </span>
+                <span className="text-lg text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5">
+                  →
+                </span>
+              </div>
+              <h2 className="font-heading text-lg text-foreground">{card.title}</h2>
+              <p className="text-sm text-muted-foreground">{card.text}</p>
+            </Link>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
