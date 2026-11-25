@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import AttendanceSummary from "@/components/attendance/AttendanceSummary";
 import AttendanceByCourse from "@/components/attendance/AttendanceByCourse";
 import { listAttendance, listCourses } from "@/lib/server-fns";
+import { studentOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/attendance")({
   head: () => ({ meta: [{ title: "出席 · VTC-SAS" }, { name: "description", content: "每节课的出席记录与整体出席率。" }] }),
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/_app/attendance")({
     const [courses, attendance] = await Promise.all([listCourses(), listAttendance()]);
     return { courses, attendance };
   },
+  beforeLoad: studentOnly,
   component: AttendancePage,
 });
 

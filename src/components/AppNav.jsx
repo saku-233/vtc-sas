@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
-const BASE_LINKS = [
+const STUDENT_LINKS = [
   { to: "/", label: "首页" },
   { to: "/courses", label: "我的课程" },
   { to: "/assignments", label: "我的作业" },
@@ -13,20 +13,25 @@ const BASE_LINKS = [
   { to: "/profile", label: "我的档案" },
 ];
 
+const TEACHER_LINKS = [
+  { to: "/teacher", label: "首页" },
+  { to: "/teacher/courses", label: "我的课程" },
+  { to: "/teacher/assignments", label: "我发布的作业" },
+  { to: "/teacher/attendance", label: "出席" },
+  { to: "/teacher/chat", label: "Chatbot" },
+  { to: "/teacher/reminders", label: "提醒" },
+  { to: "/teacher/profile", label: "我的档案" },
+];
+
 export default function AppNav() {
   const { user, logout } = useAuth();
   const isTeacher = user?.role === "admin";
-  // 教师视角：「我的作业」改为「我发布的作业」，隐藏「课程巩固」，加入「教师后台」
-  const links = isTeacher
-    ? BASE_LINKS.filter((l) => l.to !== "/minigame").map((l) =>
-        l.to === "/assignments" ? { ...l, label: "我发布的作业" } : l
-      ).concat([{ to: "/teacher", label: "教师后台" }])
-    : BASE_LINKS;
+  const links = isTeacher ? TEACHER_LINKS : STUDENT_LINKS;
   const initial = (user?.email || user?.full_name || "?").charAt(0).toUpperCase();
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5 sm:gap-10 sm:px-8">
-        <Link to="/" className="flex shrink-0 items-center gap-2.5">
+        <Link to={isTeacher ? "/teacher" : "/"} className="flex shrink-0 items-center gap-2.5">
           <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-primary text-[11px] font-semibold tracking-tight text-primary-foreground">
             VS
           </span>
@@ -40,7 +45,7 @@ export default function AppNav() {
             <Link
               key={link.to}
               to={link.to}
-              activeOptions={{ exact: link.to === "/" }}
+              activeOptions={{ exact: link.to === "/" || link.to === "/teacher" }}
               className="shrink-0 rounded-full px-3.5 py-1.5 text-[13.5px] text-muted-foreground transition-colors duration-200 hover:text-foreground"
               activeProps={{ className: "bg-secondary font-medium text-foreground" }}
             >
@@ -58,7 +63,7 @@ export default function AppNav() {
               {initial}
             </span>
             <span className="hidden text-[11px] text-muted-foreground sm:block">
-              {user.role === "admin" ? "教师" : "学生"}
+              {isTeacher ? "教师" : "学生"}
             </span>
             <button
               type="button"

@@ -6,6 +6,7 @@ import AssignmentFilters from "@/components/assignments/AssignmentFilters";
 import AssignmentItem from "@/components/assignments/AssignmentItem";
 import { listAssignments, listCourses, listReminders } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
+import { studentOnly } from "@/lib/routeGuards";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
 
 export const Route = createFileRoute("/_app/assignments")({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_app/assignments")({
     const [courses, assignments, reminders] = await Promise.all([listCourses(), listAssignments(), listReminders()]);
     return { courses, assignments, reminders };
   },
+  beforeLoad: studentOnly,
   component: AssignmentsPage,
 });
 

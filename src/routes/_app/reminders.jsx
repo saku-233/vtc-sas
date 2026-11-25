@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
 import { listCourses, listReminders } from "@/lib/server-fns";
+import { studentOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/reminders")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_app/reminders")({
     const [courses, reminders] = await Promise.all([listCourses(), listReminders()]);
     return { courses, reminders };
   },
+  beforeLoad: studentOnly,
   component: RemindersPage,
 });
 

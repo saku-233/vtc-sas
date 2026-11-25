@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GraduationCap, ClipboardList, CalendarCheck, TrendingUp } from "lucide-react";
 import { listCourses, listAssignments, listAttendance } from "@/lib/server-fns";
+import { studentOnly } from "@/lib/routeGuards";
 import PageHeader from "@/components/PageHeader";
 import CourseHistory from "@/components/profile/CourseHistory";
 import AssignmentRecords from "@/components/profile/AssignmentRecords";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/_app/profile")({
     ]);
     return { courses, assignments, attendance };
   },
+  beforeLoad: studentOnly,
   component: ProfilePage,
 });
 

@@ -1,15 +1,13 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen, ClipboardList, CalendarCheck, Users } from "lucide-react";
 import { listCourses, listAssignments, listAttendance } from "@/lib/server-fns";
 import PageHeader from "@/components/PageHeader";
 import CourseTable from "@/components/teacher/CourseTable";
+import { teacherOnly } from "@/lib/routeGuards";
 
-export const Route = createFileRoute("/_app/teacher")({
+export const Route = createFileRoute("/_app/teacher/")({
   head: () => ({ meta: [{ title: "教师后台 · VTC-SAS" }] }),
-  beforeLoad: ({ context }) => {
-    // 仅教师（admin 角色）可访问后台；学生重定向到首页
-    if (context.user?.role !== "admin") throw redirect({ to: "/" });
-  },
+  beforeLoad: teacherOnly,
   loader: async () => {
     const [courses, assignments, attendance] = await Promise.all([
       listCourses(),

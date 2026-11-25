@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { listAssignments, listAttendance, listCourses } from "@/lib/server-fns";
+import { studentOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/chat")({
   head: () => ({ meta: [{ title: "Chatbot · VTC-SAS" }, { name: "description", content: "用对话查询作业、课程与出席。" }] }),
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_app/chat")({
     ]);
     return { courses, assignments, attendance };
   },
+  beforeLoad: studentOnly,
   component: ChatPage,
 });
 
