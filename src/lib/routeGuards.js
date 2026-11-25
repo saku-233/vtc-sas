@@ -1,8 +1,8 @@
 import { redirect } from "@tanstack/react-router";
 
-// 学生页面：教师（admin）访问时跳转到教师后台首页
+// 学生页面：管理员（root）可自由访问查看学生视角，其余学生正常进入。
 export function studentOnly({ context }) {
-  if (context.user?.role === "admin") throw redirect({ to: "/teacher" });
+  if (context.user?.role === "admin") return;
 }
 
 // 教师页面：学生（非 admin）访问时跳转到学生仪表板
