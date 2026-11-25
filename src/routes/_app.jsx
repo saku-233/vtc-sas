@@ -1,8 +1,14 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import AppNav from "@/components/AppNav";
+import { authQuery } from "@/lib/AuthContext";
 
 export const Route = createFileRoute("/_app")({
   ssr: false,
+  beforeLoad: async ({ context }) => {
+    // 解析当前访客身份并注入路由 context，子路由可用 context.user 做角色分流。
+    const { user } = await context.queryClient.ensureQueryData(authQuery);
+    return { user };
+  },
   component: AppLayout,
 });
 

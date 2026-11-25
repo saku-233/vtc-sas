@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import TimetablePanel from "@/components/home/TimetablePanel";
@@ -13,6 +13,10 @@ export const Route = createFileRoute("/_app/")({
       { name: "description", content: "课程、作业、出席与学习助手，集中在一个学生门户。" },
     ],
   }),
+  beforeLoad: ({ context }) => {
+    // 教师（admin）访问学生首页时自动跳转教师后台，实现角色分流。
+    if (context.user?.role === "admin") throw redirect({ to: "/teacher" });
+  },
   loader: async () => {
     const [courses, assignments] = await Promise.all([listCourses(), listAssignments()]);
     return { courses, assignments };
