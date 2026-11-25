@@ -80,6 +80,8 @@ function AssignmentsPage() {
         description="每项作业的截止日期、占总评比重与提交状态，按到期日排列。"
       />
 
+      <CombatQuiz />
+
       <AssignmentStats summary={summary} />
 
       <RemindersPanel reminders={reminders} courses={courses} compact />
@@ -107,8 +109,6 @@ function AssignmentsPage() {
           ))}
         </ul>
       )}
-
-      <CombatQuiz />
     </div>
   );
 }
