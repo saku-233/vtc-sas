@@ -2,10 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { BookOpen, ClipboardList, CalendarCheck, Users } from "lucide-react";
 import { listCourses, listAssignments, listAttendance } from "@/lib/server-fns";
 import PageHeader from "@/components/PageHeader";
-import CourseHistory from "@/components/profile/CourseHistory";
-import AssignmentRecords from "@/components/profile/AssignmentRecords";
-import AttendanceOverview from "@/components/profile/AttendanceOverview";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import CourseTable from "@/components/teacher/CourseTable";
 
 export const Route = createFileRoute("/_app/teacher")({
   head: () => ({ meta: [{ title: "教师后台 · VTC-SAS" }] }),
@@ -44,15 +41,14 @@ function TeacherPage() {
   const totalAssignments = assignments.length;
   const presentCount = attendance.filter((a) => a.status === "出席").length;
   const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
-  // 选课学生人数：取课程中 students 字段的最大值近似，或按有选课记录的课程数
-  const enrolledStudents = courses.reduce((max, c) => Math.max(max, c.students ?? 0), 0);
+  const enrolledStudents = courses.reduce((sum, c) => sum + (c.students ?? 0), 0);
 
   return (
     <div className="space-y-8">
       <PageHeader
         eyebrow="Teacher Account Backend"
         title="教师后台"
-        description="查看全体学生的选课历史、作业记录与累计出席统计。"
+        description="查看全体课程进度、作业布置与累计出席统计。"
       >
         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
           <Users className="h-3.5 w-3.5" />
@@ -67,22 +63,13 @@ function TeacherPage() {
         <StatCard icon={Users} label="选课学生" value={enrolledStudents || "—"} sub="累计选课人次" accent="text-blue-600" />
       </div>
 
-      <Tabs defaultValue="courses" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-          <TabsTrigger value="courses">选课历史</TabsTrigger>
-          <TabsTrigger value="assignments">作业记录</TabsTrigger>
-          <TabsTrigger value="attendance">出席统计</TabsTrigger>
-        </TabsList>
-        <TabsContent value="courses" className="mt-5">
-          <CourseHistory courses={courses} />
-        </TabsContent>
-        <TabsContent value="assignments" className="mt-5">
-          <AssignmentRecords assignments={assignments} courses={courses} />
-        </TabsContent>
-        <TabsContent value="attendance" className="mt-5">
-          <AttendanceOverview courses={courses} attendance={attendance} />
-        </TabsContent>
-      </Tabs>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg text-foreground">课程进度概览</h2>
+          <span className="text-xs text-muted-foreground">共 {courses.length} 门课程</span>
+        </div>
+        <CourseTable courses={courses} assignments={assignments} />
+      </div>
     </div>
   );
 }
