@@ -187,6 +187,20 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     jet.position.set(0, 0.35, 1.4);
     scene.add(jet);
 
+    // Muzzle flash at the nose (additive glow)
+    const muzzle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 14, 14),
+      new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending })
+    );
+    muzzle.position.set(0, 0.02, -1.25);
+    jet.add(muzzle);
+    jet.userData.muzzle = muzzle;
+
+    // Smooth banking / pitch state for the player jet
+    const jetTarget = { roll: 0, pitch: -0.08, yaw: 0 };
+    const jetState = { roll: 0, pitch: -0.08, yaw: 0 };
+    let recoil = 0;
+
     // Enemy SU-30 targets
     const targets = [];
     for (let i = 0; i < TARGET_COUNT; i++) {
@@ -307,22 +321,63 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function fireAt(i, correct) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
+
+      // Bank toward the target for a responsive flight feel
+      const dx = t.position.x - jet.position.x;
+      const dy = t.position.y - jet.position.y;
+      jetTarget.roll = -Math.sign(dx) * Math.min(0.65, Math.abs(dx) * 0.2);
+      jetTarget.yaw = Math.sign(dx) * Math.min(0.4, Math.abs(dx) * 0.12);
+      jetTarget.pitch = -0.08 + Math.min(0.28, Math.abs(dy) * 0.14) * Math.sign(dy);
+
+      // Recoil + muzzle flash
+      recoil = 0.16;
+      muzzle.material.opacity = 1;
+      muzzle.scale.setScalar(1.1);
+      (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1.5));
+
+      // Bullet (oriented along travel direction) + trailing line
       const start = jet.position.clone();
       start.y += 0.1;
+      start.z -= 1.0;
       const end = t.position.clone();
-      const proj = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0x88eeff })
+      const dir = end.clone().sub(start).normalize();
+      const bullet = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.05, 0.42, 5, 10),
+        new THREE.MeshBasicMaterial({ color: 0xb8f4ff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
       );
-      proj.position.copy(start);
-      proj.userData = { end, correct, target: t, index: i };
-      scene.add(proj);
-      projectiles.push(proj);
+      bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      bullet.position.copy(start);
+      scene.add(bullet);
+
+      const trailLen = 16;
+      const trailPos = new Float32Array(trailLen * 3);
+      for (let k = 0; k < trailLen; k++) {
+        trailPos[k * 3] = start.x;
+        trailPos[k * 3 + 1] = start.y;
+        trailPos[k * 3 + 2] = start.z;
+      }
+      const trailGeo = new THREE.BufferGeometry();
+      trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
+      const trail = new THREE.Line(
+        trailGeo,
+        new THREE.LineBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending })
+      );
+      scene.add(trail);
+
+      projectiles.push({ bullet, trail, trailLen, end, correct, target: t, index: i, speed: 78 + Math.random() * 8 });
     }
 
     function reset() {
-      projectiles.forEach((p) => scene.remove(p));
+      projectiles.forEach((p) => {
+        scene.remove(p.bullet);
+        scene.remove(p.trail);
+      });
       projectiles.length = 0;
+      jetTarget.roll = 0;
+      jetTarget.pitch = -0.08;
+      jetTarget.yaw = 0;
+      recoil = 0;
+      muzzle.material.opacity = 0;
       explosions.forEach((e) => scene.remove(e));
       explosions.length = 0;
       targets.forEach((t) => {
@@ -345,10 +400,28 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       const dt = Math.min(0.05, clock.getDelta());
       const t = clock.elapsedTime;
 
+      // Smoothly ease the jet toward the target bank, then relax back to neutral
+      const ease = 1 - Math.pow(0.0015, dt);
+      jetState.roll += (jetTarget.roll - jetState.roll) * ease;
+      jetState.pitch += (jetTarget.pitch - jetState.pitch) * ease;
+      jetState.yaw += (jetTarget.yaw - jetState.yaw) * ease;
+      jetTarget.roll += (0 - jetTarget.roll) * (1 - Math.pow(0.2, dt));
+      jetTarget.pitch += (-0.08 - jetTarget.pitch) * (1 - Math.pow(0.2, dt));
+      jetTarget.yaw += (0 - jetTarget.yaw) * (1 - Math.pow(0.2, dt));
+
+      // Recoil pushes the jet back, then settles
+      recoil *= Math.pow(0.02, dt);
+
       jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05;
-      jet.rotation.z = Math.sin(t * 0.8) * 0.06;
-      jet.rotation.x = -0.08 + Math.sin(t * 1.2) * 0.02;
+      jet.position.z = 1.4 + recoil;
+      jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03;
+      jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015;
+      jet.rotation.y = jetState.yaw;
       (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1 + Math.sin(t * 18) * 0.2));
+
+      // Fade the muzzle flash
+      muzzle.material.opacity = Math.max(0, muzzle.material.opacity - dt * 7);
+      muzzle.scale.setScalar(1.1 + (1 - muzzle.material.opacity) * 0.6);
 
       const sp = starGeo.attributes.position.array;
       for (let i = 0; i < starCount; i++) {
@@ -403,20 +476,33 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
-        const dir = p.userData.end.clone().sub(p.position);
+        const dir = p.end.clone().sub(p.bullet.position);
         const dist = dir.length();
-        if (dist < 0.4) {
-          explode(p.userData.end, p.userData.correct);
-          if (p.userData.correct) {
-            p.userData.target.visible = false;
-            p.userData.target.userData.alive = false;
+        if (dist < 0.45) {
+          explode(p.end, p.correct);
+          if (p.correct) {
+            p.target.visible = false;
+            p.target.userData.alive = false;
           } else {
             shake();
           }
-          scene.remove(p);
+          scene.remove(p.bullet);
+          scene.remove(p.trail);
           projectiles.splice(i, 1);
         } else {
-          p.position.add(dir.normalize().multiplyScalar(1.4));
+          p.bullet.position.add(dir.normalize().multiplyScalar(Math.max(0.4, p.speed * dt)));
+          p.bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+          // Update the trail: shift older points, push current
+          const arr = p.trail.geometry.attributes.position.array;
+          for (let k = p.trailLen - 1; k > 0; k--) {
+            arr[k * 3] = arr[(k - 1) * 3];
+            arr[k * 3 + 1] = arr[(k - 1) * 3 + 1];
+            arr[k * 3 + 2] = arr[(k - 1) * 3 + 2];
+          }
+          arr[0] = p.bullet.position.x;
+          arr[1] = p.bullet.position.y;
+          arr[2] = p.bullet.position.z;
+          p.trail.geometry.attributes.position.needsUpdate = true;
         }
       }
 
@@ -440,15 +526,19 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         }
       }
 
-      if (shakeAmt > 0) {
-        camera.position.x = (Math.random() - 0.5) * shakeAmt;
-        camera.position.y = 1.35 + (Math.random() - 0.5) * shakeAmt;
-        shakeAmt *= 0.85;
-        if (shakeAmt < 0.01) {
-          shakeAmt = 0;
-          camera.position.set(0, 1.35, 5.4);
-        }
+      // Subtle flight sway + shake overlay
+      const swayX = Math.sin(t * 0.5) * 0.05;
+      const swayY = Math.sin(t * 0.72) * 0.04;
+      if (shakeAmt > 0.01) {
+        camera.position.x = swayX + (Math.random() - 0.5) * shakeAmt;
+        camera.position.y = 1.35 + swayY + (Math.random() - 0.5) * shakeAmt;
+        shakeAmt *= Math.pow(0.02, dt);
+      } else {
+        shakeAmt = 0;
+        camera.position.x = swayX;
+        camera.position.y = 1.35 + swayY;
       }
+      camera.lookAt(jetState.yaw * 2, 0.5 + jetState.pitch * 0.5, -8);
 
       renderer.render(scene, camera);
     }
