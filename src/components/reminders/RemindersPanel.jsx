@@ -11,7 +11,7 @@ export default function RemindersPanel({ reminders, courses, compact = false }) 
       <div className="flex items-center justify-between">
         <h3 className="font-heading text-base text-foreground">作业提醒</h3>
         {compact ? (
-          <Link to="/reminders" className="inline-flex items-center gap-1 text-xs text-primary transition-opacity hover:opacity-70">
+          <Link to="/student/reminders" className="inline-flex items-center gap-1 text-xs text-primary transition-opacity hover:opacity-70">
             全部 <ArrowUpRight className="h-3 w-3" />
           </Link>
         ) : null}

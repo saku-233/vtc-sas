@@ -16,14 +16,14 @@ import { useAuth } from "@/lib/AuthContext";
 
 const STUDENT_LINKS = [
   { to: "/", label: "首页", icon: Home, exact: true },
-  { to: "/dashboard", label: "仪表板", icon: LayoutDashboard },
-  { to: "/courses", label: "我的课程", icon: BookOpen },
-  { to: "/assignments", label: "我的作业", icon: ClipboardList },
-  { to: "/attendance", label: "出席", icon: CalendarCheck },
-  { to: "/chat", label: "Chatbot", icon: MessageSquare },
-  { to: "/reminders", label: "提醒", icon: Bell },
+  { to: "/student/dashboard", label: "仪表板", icon: LayoutDashboard },
+  { to: "/student/courses", label: "我的课程", icon: BookOpen },
+  { to: "/student/assignments", label: "我的作业", icon: ClipboardList },
+  { to: "/student/attendance", label: "出席", icon: CalendarCheck },
+  { to: "/student/chat", label: "Chatbot", icon: MessageSquare },
+  { to: "/student/reminders", label: "提醒", icon: Bell },
   { to: "/minigame", label: "课程巩固", icon: Gamepad2 },
-  { to: "/profile", label: "我的档案", icon: User },
+  { to: "/student/profile", label: "我的档案", icon: User },
 ];
 
 const TEACHER_LINKS = [
@@ -41,7 +41,7 @@ export default function AppNav() {
   const isTeacher = user?.role === "admin";
   const links = user ? (isTeacher ? TEACHER_LINKS : STUDENT_LINKS) : [];
   const initial = (user?.email || user?.full_name || "?").charAt(0).toUpperCase();
-  const brandTo = user ? (isTeacher ? "/teacher" : "/") : "/";
+  const brandTo = user ? (isTeacher ? "/teacher" : "/student/dashboard") : "/";
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">

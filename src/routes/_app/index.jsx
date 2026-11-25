@@ -23,20 +23,20 @@ export const Route = createFileRoute("/_app/")({
 });
 
 const NAV_CARDS = [
-  { to: "/dashboard", icon: LayoutDashboard, title: "仪表板", text: "课程、作业与出席的一览总览。" },
-  { to: "/courses", icon: BookOpen, title: "我的课程", text: "本学期的科目与上课时间。" },
-  { to: "/assignments", icon: ClipboardList, title: "我的作业", text: "截止日期、比重与提交状态。" },
-  { to: "/attendance", icon: CalendarCheck, title: "出席", text: "每节课的出席记录与统计。" },
-  { to: "/chat", icon: MessageSquare, title: "Chatbot", text: "用对话查询你的学业安排。" },
-  { to: "/reminders", icon: Bell, title: "提醒", text: "作业截止前的自动提醒记录。" },
+  { to: "/student/dashboard", icon: LayoutDashboard, title: "仪表板", text: "课程、作业与出席的一览总览。" },
+  { to: "/student/courses", icon: BookOpen, title: "我的课程", text: "本学期的科目与上课时间。" },
+  { to: "/student/assignments", icon: ClipboardList, title: "我的作业", text: "截止日期、比重与提交状态。" },
+  { to: "/student/attendance", icon: CalendarCheck, title: "出席", text: "每节课的出席记录与统计。" },
+  { to: "/student/chat", icon: MessageSquare, title: "Chatbot", text: "用对话查询你的学业安排。" },
+  { to: "/student/reminders", icon: Bell, title: "提醒", text: "作业截止前的自动提醒记录。" },
   { to: "/minigame", icon: Gamepad2, title: "课程巩固", text: "用知识空战巩固本学期内容。" },
-  { to: "/profile", icon: User, title: "我的档案", text: "选课历史、作业记录与出席统计。" },
+  { to: "/student/profile", icon: User, title: "我的档案", text: "选课历史、作业记录与出席统计。" },
 ];
 
 function WelcomePage() {
   const { user, navigateToLogin } = useAuth();
   const isTeacher = user?.role === "admin";
-  const homePath = isTeacher ? "/teacher" : "/dashboard";
+  const homePath = isTeacher ? "/teacher" : "/student/dashboard";
 
   return (
     <div className="space-y-10">

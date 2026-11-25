@@ -8,7 +8,7 @@ import { listAttendance, listCourses } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/_app/attendance")({
+export const Route = createFileRoute("/_app/student/attendance")({
   head: () => ({ meta: [{ title: "出席 · VTC-SAS" }, { name: "description", content: "每节课的出席记录与整体出席率。" }] }),
   loader: async () => {
     const [courses, attendance] = await Promise.all([listCourses(), listAttendance()]);

@@ -7,7 +7,7 @@ import { listAssignments, listCourses } from "@/lib/server-fns";
 import { dueLabel, DONE_STATUSES } from "@/lib/assignments";
 import { studentOnly } from "@/lib/routeGuards";
 
-export const Route = createFileRoute("/_app/dashboard")({
+export const Route = createFileRoute("/_app/student/dashboard")({
   head: () => ({
     meta: [
       { title: "仪表板 · VTC-SAS" },
@@ -23,10 +23,10 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 const SECTIONS = [
-  { to: "/courses", title: "我的课程", text: "本学期的科目与上课时间。" },
-  { to: "/assignments", title: "我的作业", text: "截止日期、比重与提交状态。" },
-  { to: "/attendance", title: "出席", text: "每节课的出席记录与统计。" },
-  { to: "/chat", title: "Chatbot", text: "用对话查询你的学业安排。" },
+  { to: "/student/courses", title: "我的课程", text: "本学期的科目与上课时间。" },
+  { to: "/student/assignments", title: "我的作业", text: "截止日期、比重与提交状态。" },
+  { to: "/student/attendance", title: "出席", text: "每节课的出席记录与统计。" },
+  { to: "/student/chat", title: "Chatbot", text: "用对话查询你的学业安排。" },
 ];
 
 function DashboardPage() {
@@ -57,7 +57,7 @@ function DashboardPage() {
                   </p>
                 </div>
                 <Link
-                  to="/assignments"
+                  to="/student/assignments"
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
                   查看全部作业

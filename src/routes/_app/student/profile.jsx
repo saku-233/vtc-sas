@@ -8,7 +8,7 @@ import AssignmentRecords from "@/components/profile/AssignmentRecords";
 import AttendanceOverview from "@/components/profile/AttendanceOverview";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_app/profile")({
+export const Route = createFileRoute("/_app/student/profile")({
   head: () => ({ meta: [{ title: "我的档案 · VTC-SAS" }] }),
   loader: async () => {
     const [courses, assignments, attendance] = await Promise.all([

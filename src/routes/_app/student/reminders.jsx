@@ -4,7 +4,7 @@ import RemindersPanel from "@/components/reminders/RemindersPanel";
 import { listCourses, listReminders } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 
-export const Route = createFileRoute("/_app/reminders")({
+export const Route = createFileRoute("/_app/student/reminders")({
   head: () => ({
     meta: [
       { title: "作业提醒 · VTC-SAS" },

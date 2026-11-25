@@ -4,7 +4,7 @@ import ChatWindow from "@/components/chat/ChatWindow";
 import { listAssignments, listAttendance, listCourses } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 
-export const Route = createFileRoute("/_app/chat")({
+export const Route = createFileRoute("/_app/student/chat")({
   head: () => ({ meta: [{ title: "Chatbot · VTC-SAS" }, { name: "description", content: "用对话查询作业、课程与出席。" }] }),
   ssr: false,
   loader: async () => {

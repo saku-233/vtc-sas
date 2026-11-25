@@ -9,7 +9,7 @@ import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
 import { studentOnly } from "@/lib/routeGuards";
 import RemindersPanel from "@/components/reminders/RemindersPanel";
 
-export const Route = createFileRoute("/_app/assignments")({
+export const Route = createFileRoute("/_app/student/assignments")({
   head: () => ({
     meta: [
       { title: "我的作业 · VTC-SAS" },

@@ -57,7 +57,7 @@ export default function CourseTable({ courses, assignments }) {
               <td className="px-5 py-4 tabular-nums text-foreground">{c.students ?? "—"}</td>
               <td className="px-5 py-4 text-right">
                 <Link
-                  to="/courses"
+                  to="/teacher/courses"
                   className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
                 >
                   详情

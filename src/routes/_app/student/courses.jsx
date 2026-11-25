@@ -6,7 +6,7 @@ import CombatQuiz from "@/components/minigame/CombatQuiz";
 import { listCourses } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 
-export const Route = createFileRoute("/_app/courses")({
+export const Route = createFileRoute("/_app/student/courses")({
   head: () => ({ meta: [{ title: "我的课程 · VTC-SAS" }, { name: "description", content: "本学期修读的科目、上课时间与老师。" }] }),
   beforeLoad: studentOnly,
   loader: () => listCourses(),

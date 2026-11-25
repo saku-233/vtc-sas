@@ -27,7 +27,7 @@ export function LoginPage() {
   const [otpCode, setOtpCode] = useState("");
   const [role, setRole] = useState("student");
 
-  const targetPath = role === "teacher" ? "/teacher" : "/dashboard";
+  const targetPath = role === "teacher" ? "/teacher" : "/student/dashboard";
 
   async function submit(e) {
     e.preventDefault();
