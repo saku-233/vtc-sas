@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
 
 const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.test(err?.message ?? "");
 
@@ -32,6 +33,10 @@ export function RegisterPage() {
   async function register(e) {
     e.preventDefault();
     setError("");
+    if (!isSchoolEmail(email)) {
+      setError(schoolEmailHint());
+      return;
+    }
     if (password !== confirm) {
       setError("两次输入的密码不一致");
       return;
@@ -128,15 +133,16 @@ export function RegisterPage() {
 
   return (
     <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
-      <GoogleButton returnTo={returnTo} onError={setError} />
-      <OrDivider />
+      <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center text-xs text-primary/80">
+        仅限 VTC 学校邮箱注册
+      </p>
       <AuthError>{error}</AuthError>
       <form onSubmit={register} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="register-email">电邮</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
+            <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder="you@stu.vtc.edu.hk" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <div className="space-y-2">

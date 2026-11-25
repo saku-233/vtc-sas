@@ -8,6 +8,7 @@ import { MfaFlow } from "@/components/auth/MfaFlow";
 import { MfaScreen } from "@/components/auth/MfaParts";
 import { loginWithMfa } from "@/lib/authMfa";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
 
 // The /login page. ?returnTo= (or the platform's ?from_url=) is where the visitor
 // goes after signing in — the login gate and the MCP consent page send people here with it.
@@ -22,6 +23,10 @@ export function LoginPage() {
   async function submit(e) {
     e.preventDefault();
     setError("");
+    if (!isSchoolEmail(email)) {
+      setError(schoolEmailHint());
+      return;
+    }
     setBusy(true);
     try {
       const result = await loginWithMfa(email, password);
@@ -42,15 +47,16 @@ export function LoginPage() {
 
   return (
     <AuthLayout icon={LogIn} title="欢迎回来" subtitle="登录你的账户">
-      <GoogleButton returnTo={returnTo} onError={setError} />
-      <OrDivider />
+      <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center text-xs text-primary/80">
+        仅限 VTC 学校邮箱登录
+      </p>
       <AuthError>{error}</AuthError>
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="login-email">电邮</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="login-email" type="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" required />
+            <Input id="login-email" type="email" autoComplete="email" autoFocus placeholder="you@stu.vtc.edu.hk" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" required />
           </div>
         </div>
         <div className="space-y-2">
