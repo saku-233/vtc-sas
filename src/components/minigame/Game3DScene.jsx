@@ -265,6 +265,38 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, height);
     mount.appendChild(renderer.domElement);
+    renderer.domElement.style.touchAction = "none";
+    renderer.domElement.style.cursor = "grab";
+
+    // Free orbit camera state + drag handling (全方位视角)
+    let orbitTheta = 0;
+    let orbitPhi = 0.08;
+    const orbitR = 9.5;
+    const orbitCenter = new THREE.Vector3(0, 0.6, -4);
+    let cameraCue = null;
+    let dragging = false;
+    let lastPX = 0;
+    let lastPY = 0;
+    const onPointerDown = (e) => {
+      dragging = true;
+      lastPX = e.clientX;
+      lastPY = e.clientY;
+      renderer.domElement.style.cursor = "grabbing";
+    };
+    const onPointerMove = (e) => {
+      if (!dragging) return;
+      orbitTheta += (e.clientX - lastPX) * 0.005;
+      orbitPhi = Math.max(-0.32, Math.min(0.72, orbitPhi - (e.clientY - lastPY) * 0.004));
+      lastPX = e.clientX;
+      lastPY = e.clientY;
+    };
+    const onPointerUp = () => {
+      dragging = false;
+      renderer.domElement.style.cursor = "grab";
+    };
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
 
     scene.add(new THREE.AmbientLight(0x88aaff, 0.7));
     const dir = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -615,18 +647,27 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function enemyAttack(i) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
+      const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 4.0);
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
         diveDur: 0.32,
         returnDur: 0.34,
         startPos: t.position.clone(),
-        behindPos: new THREE.Vector3(jet.position.x * 0.4, 1.4, 4.0),
+        behindPos: behind.clone(),
         base: new THREE.Vector3(TARGET_X[i], TARGET_Y[i], TARGET_Z),
+      };
+      // Cinematic rear close-up on the attacking enemy
+      cameraCue = {
+        t0: clock.elapsedTime,
+        dur: 0.95,
+        pos: new THREE.Vector3(behind.x, behind.y + 0.5, behind.z + 2.6),
+        look: behind.clone(),
       };
     }
 
     function reset() {
+      cameraCue = null;
       projectiles.forEach((p) => {
         scene.remove(p.bullet);
         scene.remove(p.trail);
@@ -884,19 +925,44 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         }
       }
 
-      // Subtle flight sway + shake overlay
+      // Free orbit camera + cinematic cue on enemy attack + shake
+      const ox = orbitR * Math.cos(orbitPhi) * Math.sin(orbitTheta);
+      const oy = orbitR * Math.sin(orbitPhi);
+      const oz = orbitR * Math.cos(orbitPhi) * Math.cos(orbitTheta);
+      let desX = ox;
+      let desY = orbitCenter.y + oy;
+      let desZ = orbitCenter.z + oz;
+      let lookX = orbitCenter.x;
+      let lookY = orbitCenter.y;
+      let lookZ = orbitCenter.z;
+      if (cameraCue) {
+        const a = t - cameraCue.t0;
+        const k = Math.min(1, a / cameraCue.dur);
+        let blend;
+        if (k < 0.3) blend = k / 0.3;
+        else if (k > 0.75) blend = Math.max(0, (1 - k) / 0.25);
+        else blend = 1;
+        desX = desX * (1 - blend) + cameraCue.pos.x * blend;
+        desY = desY * (1 - blend) + cameraCue.pos.y * blend;
+        desZ = desZ * (1 - blend) + cameraCue.pos.z * blend;
+        lookX = lookX * (1 - blend) + cameraCue.look.x * blend;
+        lookY = lookY * (1 - blend) + cameraCue.look.y * blend;
+        lookZ = lookZ * (1 - blend) + cameraCue.look.z * blend;
+        if (k >= 1) cameraCue = null;
+      }
       const swayX = Math.sin(t * 0.5) * 0.05;
       const swayY = Math.sin(t * 0.72) * 0.04;
+      let sx = 0;
+      let sy = 0;
       if (shakeAmt > 0.01) {
-        camera.position.x = swayX + (Math.random() - 0.5) * shakeAmt;
-        camera.position.y = 1.35 + swayY + (Math.random() - 0.5) * shakeAmt;
+        sx = (Math.random() - 0.5) * shakeAmt;
+        sy = (Math.random() - 0.5) * shakeAmt;
         shakeAmt *= Math.pow(0.02, dt);
       } else {
         shakeAmt = 0;
-        camera.position.x = swayX;
-        camera.position.y = 1.35 + swayY;
       }
-      camera.lookAt(jetState.yaw * 2, 0.5 + jetState.pitch * 0.5, -8);
+      camera.position.set(desX + swayX + sx, desY + swayY + sy, desZ);
+      camera.lookAt(lookX, lookY, lookZ);
 
       renderer.render(scene, camera);
     }
@@ -914,6 +980,9 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
       renderer.dispose();
       if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
       scene.traverse((o) => {
