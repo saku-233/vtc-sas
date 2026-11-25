@@ -217,12 +217,13 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xbbddff, size: 0.09, transparent: true, opacity: 0.85 }));
     scene.add(stars);
 
-    // Alpine mountain range
+    // Alpine mountain range (scrolls toward the player for a forward-flight feel)
     const mountains = new THREE.Group();
     const rockMat = new THREE.MeshStandardMaterial({ color: 0x2a3a52, roughness: 0.95, flatShading: true });
     const snowMat = new THREE.MeshStandardMaterial({ color: 0xe4eef7, roughness: 0.6, flatShading: true });
     const rockMat2 = new THREE.MeshStandardMaterial({ color: 0x1f2c40, roughness: 0.95, flatShading: true });
-    function addPeak(x, z, h, mat) {
+    const peaks = [];
+    function addPeak(x, z, h, mat, speed, farH) {
       const cone = new THREE.Mesh(new THREE.ConeGeometry(3.5 + Math.random() * 3, h, 5), mat);
       cone.position.set(x, h / 2 - 9, z);
       cone.rotation.y = Math.random() * Math.PI;
@@ -230,14 +231,15 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       const snow = new THREE.Mesh(new THREE.ConeGeometry(1.3, h * 0.32, 5), snowMat);
       snow.position.set(x, h - 9 - h * 0.12, z);
       mountains.add(snow);
+      peaks.push({ cone, snow, speed, farH });
     }
     for (let i = 0; i < 20; i++) {
       const x = (i - 10) * 5 + (Math.random() - 0.5) * 3;
-      addPeak(x, -40, 9 + Math.random() * 9, rockMat);
+      addPeak(x, -40 + (Math.random() - 0.5) * 8, 9 + Math.random() * 9, rockMat, 7, 9 + Math.random() * 9);
     }
     for (let i = 0; i < 12; i++) {
       const x = (i - 6) * 8 + (Math.random() - 0.5) * 4;
-      addPeak(x, -24, 6 + Math.random() * 6, rockMat2);
+      addPeak(x, -24 + (Math.random() - 0.5) * 6, 6 + Math.random() * 6, rockMat2, 11, 6 + Math.random() * 6);
     }
     scene.add(mountains);
 
@@ -353,6 +355,20 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         if (sp[i * 3 + 2] > 8) sp[i * 3 + 2] -= 48;
       }
       starGeo.attributes.position.needsUpdate = true;
+
+      peaks.forEach((p) => {
+        const nz = p.cone.position.z + dt * p.speed;
+        if (nz > 14) {
+          const nx = (Math.random() - 0.5) * 52;
+          const h = p.farH;
+          p.cone.position.set(nx, h / 2 - 9, -48 - Math.random() * 6);
+          p.cone.rotation.y = Math.random() * Math.PI;
+          p.snow.position.set(nx, h - 9 - h * 0.12, p.cone.position.z);
+        } else {
+          p.cone.position.z = nz;
+          p.snow.position.z = nz;
+        }
+      });
 
       const stp = streakGeo.attributes.position.array;
       for (let i = 0; i < streakCount; i++) {
