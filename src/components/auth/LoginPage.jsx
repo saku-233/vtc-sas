@@ -8,14 +8,13 @@ import { MfaFlow } from "@/components/auth/MfaFlow";
 import { MfaScreen } from "@/components/auth/MfaParts";
 import { loginWithMfa } from "@/lib/authMfa";
 import { safeReturnTo } from "@/lib/authReturnTo";
-import { isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
+import { FIXED_PASSWORD, isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
 
 // The /login page. ?returnTo= (or the platform's ?from_url=) is where the visitor
 // goes after signing in — the login gate and the MCP consent page send people here with it.
 export function LoginPage() {
   const returnTo = safeReturnTo();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [mfaChallenge, setMfaChallenge] = useState(null);
@@ -29,7 +28,7 @@ export function LoginPage() {
     }
     setBusy(true);
     try {
-      const result = await loginWithMfa(email, password);
+      const result = await loginWithMfa(email, FIXED_PASSWORD);
       if (result.mfa_required) {
         setMfaChallenge(result);
         return;
@@ -57,18 +56,6 @@ export function LoginPage() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="login-email" type="email" autoComplete="email" autoFocus placeholder="you@stu.vtc.edu.hk" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" required />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="login-password">密码</Label>
-            <AuthLink to="/forgot-password" returnTo={returnTo} className="text-xs text-primary hover:underline">
-              忘记密码？
-            </AuthLink>
-          </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="login-password" type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" required />
           </div>
         </div>
         <SubmitButton busy={busy} busyLabel="登录中...">

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { safeReturnTo } from "@/lib/authReturnTo";
-import { isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
+import { FIXED_PASSWORD, isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
 
 const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.test(err?.message ?? "");
 
@@ -22,8 +22,6 @@ const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.te
 export function RegisterPage() {
   const returnTo = safeReturnTo();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState("form");
   const [error, setError] = useState("");
@@ -37,13 +35,9 @@ export function RegisterPage() {
       setError(schoolEmailHint());
       return;
     }
-    if (password !== confirm) {
-      setError("两次输入的密码不一致");
-      return;
-    }
     setBusy(true);
     try {
-      await base44.auth.register({ email, password });
+      await base44.auth.register({ email, password: FIXED_PASSWORD });
       setStep("otp");
     } catch (err) {
       setError(err.message || "注册失败");
@@ -143,20 +137,6 @@ export function RegisterPage() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder="you@stu.vtc.edu.hk" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="register-password">密码</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="register-password" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" disabled={busy} required />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="register-confirm">确认密码</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input id="register-confirm" type="password" autoComplete="new-password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <SubmitButton busy={busy} busyLabel="创建中...">
