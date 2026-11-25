@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { safeReturnTo } from "@/lib/authReturnTo";
-import { FIXED_PASSWORD, isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
+import { FIXED_PASSWORD } from "@/lib/schoolEmail";
 
 const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.test(err?.message ?? "");
 
@@ -31,10 +31,6 @@ export function RegisterPage() {
   async function register(e) {
     e.preventDefault();
     setError("");
-    if (!isSchoolEmail(email)) {
-      setError(schoolEmailHint());
-      return;
-    }
     setBusy(true);
     try {
       await base44.auth.register({ email, password: FIXED_PASSWORD });
@@ -127,9 +123,7 @@ export function RegisterPage() {
 
   return (
     <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
-      <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center text-xs text-primary/80">
-        仅限 VTC 学校邮箱注册
-      </p>
+
       <AuthError>{error}</AuthError>
       <form onSubmit={register} className="space-y-4">
         <div className="space-y-2">

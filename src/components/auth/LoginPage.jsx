@@ -11,7 +11,7 @@ import { MfaFlow } from "@/components/auth/MfaFlow";
 import { MfaScreen } from "@/components/auth/MfaParts";
 import { loginWithMfa } from "@/lib/authMfa";
 import { safeReturnTo } from "@/lib/authReturnTo";
-import { FIXED_PASSWORD, isSchoolEmail, schoolEmailHint } from "@/lib/schoolEmail";
+import { FIXED_PASSWORD } from "@/lib/schoolEmail";
 
 const isUnverifiedEmail = (err) => /verify your email/i.test(err?.message ?? "");
 
@@ -29,13 +29,9 @@ export function LoginPage() {
   async function submit(e) {
     e.preventDefault();
     setError("");
-    if (!isSchoolEmail(email)) {
-      setError(schoolEmailHint());
-      return;
-    }
     setBusy(true);
     try {
-      const result = await loginWithMfa(email, FIXED_PASSWORD);
+      const result = await loginWithMfa(email, FIXED_PASSWORD || undefined);
       if (result.mfa_required) {
         setMfaChallenge(result);
         return;
@@ -120,9 +116,7 @@ export function LoginPage() {
 
   return (
     <AuthLayout icon={LogIn} title="欢迎回来" subtitle="登录你的账户">
-      <p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-center text-xs text-primary/80">
-        仅限 VTC 学校邮箱登录
-      </p>
+
       <AuthError>{error}</AuthError>
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-2">
