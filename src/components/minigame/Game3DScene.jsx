@@ -468,16 +468,62 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const explosions = [];
     let shakeAmt = 0;
 
+    // --- shared VFX textures & scratch (built once, reused by every explosion & missile) ---
+    function makeRadialTex(inner, outer, size = 64) {
+      const c = document.createElement("canvas");
+      c.width = c.height = size;
+      const ctx = c.getContext("2d");
+      const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+      g.addColorStop(0, inner);
+      g.addColorStop(1, outer);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, size, size);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+    function makeRingTex(size = 128) {
+      const c = document.createElement("canvas");
+      c.width = c.height = size;
+      const ctx = c.getContext("2d");
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = size * 0.1;
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size * 0.36, 0, Math.PI * 2);
+      ctx.stroke();
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+    const vfxGlowTex = makeRadialTex("rgba(255,255,255,1)", "rgba(255,255,255,0)");
+    const vfxSmokeTex = makeRadialTex("rgba(220,226,232,1)", "rgba(220,226,232,0)");
+    const vfxRingTex = makeRingTex();
+    const _grav = new THREE.Vector3(0, -0.0009, 0);
+
     function explode(pos, correct) {
       const exp = new THREE.Group();
-      const flashColor = correct ? 0x66ff88 : 0xff4444;
-      const sparkColor = correct ? 0xc8ffd8 : 0xffb24d;
+      const flashColor = correct ? 0x66ff88 : 0xff5a3c;
+      const sparkColor = correct ? 0xc8ffd8 : 0xffd06a;
+      // bright white core flash (additive)
       const flash = new THREE.Mesh(
         new THREE.SphereGeometry(0.34, 16, 16),
-        new THREE.MeshBasicMaterial({ color: flashColor, transparent: true, opacity: 0.9 })
+        new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
       );
       exp.add(flash);
-      const pcount = 24;
+      // large soft colored glow halo
+      const glow = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: vfxGlowTex, color: flashColor, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      glow.scale.setScalar(1.4);
+      exp.add(glow);
+      // shockwave ring (billboard sprite that expands & thins)
+      const ring = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: vfxRingTex, color: 0xffffff, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
+      ring.scale.setScalar(0.5);
+      exp.add(ring);
+      // hot sparks: fast, gravity, additive
+      const pcount = 40;
       const pGeo = new THREE.BufferGeometry();
       const pPos = new Float32Array(pcount * 3);
       const pVel = [];
@@ -488,13 +534,33 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         pVel.push(
           new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
             .normalize()
-            .multiplyScalar(0.05 + Math.random() * 0.08)
+            .multiplyScalar(0.04 + Math.random() * 0.12)
         );
       }
       pGeo.setAttribute("position", new THREE.BufferAttribute(pPos, 3));
-      const pts = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: sparkColor, size: 0.15, transparent: true, opacity: 1 }));
+      const pts = new THREE.Points(
+        pGeo,
+        new THREE.PointsMaterial({ color: sparkColor, size: 0.16, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false })
+      );
       exp.add(pts);
-      exp.userData = { flash, pts, pVel, life: 0, max: 0.85 };
+      // smoke puffs: slow, drift up, fade late, textured
+      const scount = 22;
+      const sGeo = new THREE.BufferGeometry();
+      const sPos = new Float32Array(scount * 3);
+      const sVel = [];
+      for (let i = 0; i < scount; i++) {
+        sPos[i * 3] = pos.x + (Math.random() - 0.5) * 0.2;
+        sPos[i * 3 + 1] = pos.y + (Math.random() - 0.5) * 0.2;
+        sPos[i * 3 + 2] = pos.z + (Math.random() - 0.5) * 0.2;
+        sVel.push(new THREE.Vector3((Math.random() - 0.5) * 0.03, 0.02 + Math.random() * 0.04, (Math.random() - 0.5) * 0.03));
+      }
+      sGeo.setAttribute("position", new THREE.BufferAttribute(sPos, 3));
+      const smoke = new THREE.Points(
+        sGeo,
+        new THREE.PointsMaterial({ map: vfxSmokeTex, color: 0xb8c0c8, size: 0.5, transparent: true, opacity: 0.6, depthWrite: false })
+      );
+      exp.add(smoke);
+      exp.userData = { flash, glow, ring, pts, pVel, smoke, sVel, life: 0, max: 0.95 };
       scene.add(exp);
       explosions.push(exp);
     }
@@ -508,7 +574,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const finMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b3, metalness: 0.3, roughness: 0.6 });
     const exhaustGeo = new THREE.SphereGeometry(0.07, 8, 8);
     const exhaustMat = new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
-    const trailMat = new THREE.LineBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+    const exhaustGlowMat = new THREE.SpriteMaterial({ map: vfxGlowTex, color: 0xffb060, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false });
+    const trailMat = new THREE.LineBasicMaterial({ color: 0xffd49a, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
     const launchFlash = new THREE.Mesh(
       new THREE.SphereGeometry(0.2, 12, 12),
       new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending })
@@ -517,7 +584,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     scene.add(launchFlash);
     const sharedMissileResources = [
       missileBodyGeo, missileBodyMat, missileNoseGeo, missileNoseMat,
-      finGeo, finMat, exhaustGeo, exhaustMat, trailMat, launchFlash.geometry, launchFlash.material,
+      finGeo, finMat, exhaustGeo, exhaustMat, exhaustGlowMat, trailMat, launchFlash.geometry, launchFlash.material,
+      vfxGlowTex, vfxSmokeTex, vfxRingTex,
     ];
     // scratch vectors to avoid per-frame allocations
     const _dir = new THREE.Vector3();
@@ -576,6 +644,12 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       exhaust.scale.setScalar(0.1); // dim during the drop phase
       missile.add(exhaust);
       missile.userData.exhaust = exhaust;
+      // additive tail glow billboard
+      const tailGlow = new THREE.Sprite(exhaustGlowMat);
+      tailGlow.position.set(0, 0, 0.32);
+      tailGlow.scale.setScalar(0.5);
+      missile.add(tailGlow);
+      missile.userData.tailGlow = tailGlow;
 
       // Release orientation matches the jet; it re-orients toward the target on ignition
       missile.position.copy(start);
@@ -624,6 +698,11 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       exhaust.position.set(0, 0, 0.28);
       missile.add(exhaust);
       missile.userData.exhaust = exhaust;
+      const tailGlow = new THREE.Sprite(exhaustGlowMat);
+      tailGlow.position.set(0, 0, 0.32);
+      tailGlow.scale.setScalar(0.5);
+      missile.add(tailGlow);
+      missile.userData.tailGlow = tailGlow;
       _dir.copy(end).sub(from).normalize();
       missile.quaternion.setFromUnitVectors(_fwd, _dir);
       missile.position.copy(from);
@@ -923,6 +1002,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           p.bullet.position.addScaledVector(_dir, Math.max(0.4, p.speed * dt));
           p.bullet.quaternion.setFromUnitVectors(_fwd, _dir);
           if (p.bullet.userData.exhaust) p.bullet.userData.exhaust.scale.setScalar(1 + Math.sin(t * 40) * 0.35);
+          if (p.bullet.userData.tailGlow) p.bullet.userData.tailGlow.scale.setScalar(0.5 + Math.sin(t * 40) * 0.18);
           // Update the trail: shift older points, push current
           const arr = p.trail.geometry.attributes.position.array;
           for (let k = p.trailLen - 1; k > 0; k--) {
@@ -939,19 +1019,39 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
       for (let i = explosions.length - 1; i >= 0; i--) {
         const e = explosions[i];
-        e.userData.life += dt;
-        const k = e.userData.life / e.userData.max;
-        e.userData.flash.scale.setScalar(1 + k * 5);
-        e.userData.flash.material.opacity = Math.max(0, 0.9 * (1 - k));
-        const pp = e.userData.pts.geometry.attributes.position.array;
-        e.userData.pVel.forEach((v, j) => {
+        const u = e.userData;
+        u.life += dt;
+        const k = u.life / u.max;
+        // core flash: quick bright pop then fast fade
+        u.flash.scale.setScalar(1 + k * 3.4);
+        u.flash.material.opacity = Math.max(0, 0.95 * Math.pow(1 - k, 1.6));
+        // soft glow halo: swells then fades
+        u.glow.scale.setScalar(1.4 + k * 4.5);
+        u.glow.material.opacity = Math.max(0, 0.9 * (1 - k));
+        // shockwave ring: expands fast, thins out
+        u.ring.scale.setScalar(0.5 + k * 6.5);
+        u.ring.material.opacity = Math.max(0, 0.85 * Math.pow(1 - k, 1.4));
+        // sparks: fly out + gravity + fade
+        const pp = u.pts.geometry.attributes.position.array;
+        u.pVel.forEach((v, j) => {
+          v.add(_grav);
           pp[j * 3] += v.x;
           pp[j * 3 + 1] += v.y;
           pp[j * 3 + 2] += v.z;
         });
-        e.userData.pts.geometry.attributes.position.needsUpdate = true;
-        e.userData.pts.material.opacity = Math.max(0, 1 - k);
-        if (e.userData.life >= e.userData.max) {
+        u.pts.geometry.attributes.position.needsUpdate = true;
+        u.pts.material.opacity = Math.max(0, 1 - k * 1.15);
+        // smoke: drift up, expand, fade late
+        const sp = u.smoke.geometry.attributes.position.array;
+        u.sVel.forEach((v, j) => {
+          sp[j * 3] += v.x;
+          sp[j * 3 + 1] += v.y;
+          sp[j * 3 + 2] += v.z;
+        });
+        u.smoke.geometry.attributes.position.needsUpdate = true;
+        u.smoke.material.opacity = Math.max(0, 0.55 * (1 - k));
+        u.smoke.scale.setScalar(1 + k * 1.6);
+        if (u.life >= u.max) {
           scene.remove(e);
           explosions.splice(i, 1);
         }
