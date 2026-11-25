@@ -98,7 +98,7 @@ export default function CombatGame3D({ fullscreen = false }) {
     if (locked.current) return;
     locked.current = true;
     sceneRef.current?.lockOn?.(i);
-    setTimeout(() => resolveAnswer(i, remaining), 520);
+    setTimeout(() => resolveAnswer(i, remaining), 1500);
   }
 
   const q = QUIZ_QUESTIONS[qIndex];
