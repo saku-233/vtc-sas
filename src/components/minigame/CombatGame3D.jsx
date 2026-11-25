@@ -155,13 +155,13 @@ export default function CombatGame3D({ fullscreen = false }) {
         </div>
       )}
 
-      {/* question + options */}
+      {/* question + options — side panel on desktop, bottom on mobile */}
       {phase === "active" && (
-        <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5">
-          <div className="mx-auto max-w-2xl rounded-2xl border border-cyan-300/30 bg-slate-900/70 p-4 backdrop-blur-md sm:p-5">
+        <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:inset-x-auto sm:right-0 sm:bottom-auto sm:top-1/2 sm:w-[340px] sm:-translate-y-1/2 sm:p-4">
+          <div className="rounded-2xl border border-cyan-300/30 bg-slate-900/75 p-4 backdrop-blur-md">
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-cyan-300/80">{q.subject}</p>
-            <p className="mt-1.5 font-heading text-base text-white sm:text-lg">{q.question}</p>
-            <div className="mt-3.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            <p className="mt-1.5 font-heading text-base text-white">{q.question}</p>
+            <div className="mt-3.5 grid grid-cols-2 gap-2.5">
               {q.options.map((opt, i) => {
                 const isPicked = picked === i;
                 const reveal = picked !== null;
@@ -170,7 +170,7 @@ export default function CombatGame3D({ fullscreen = false }) {
                     key={i}
                     onClick={() => choose(i)}
                     disabled={reveal}
-                    className={`flex flex-col items-center gap-1 rounded-xl border px-2.5 py-3 text-center transition-all ${
+                    className={`flex items-center gap-2 rounded-xl border px-2.5 py-2.5 text-left transition-all ${
                       isPicked
                         ? feedback === "hit"
                           ? "border-emerald-400 bg-emerald-400/15"
@@ -178,10 +178,10 @@ export default function CombatGame3D({ fullscreen = false }) {
                         : "border-white/20 bg-white/5 hover:-translate-y-0.5 hover:border-cyan-300/50"
                     } ${reveal ? "opacity-50" : ""}`}
                   >
-                    <span className="grid h-7 w-7 place-items-center rounded-md bg-white/10 font-mono text-xs text-cyan-200">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-white/10 font-mono text-xs text-cyan-200">
                       {String.fromCharCode(65 + i)}
                     </span>
-                    <span className="text-[12.5px] leading-tight text-white">{opt}</span>
+                    <span className="text-[12px] leading-tight text-white">{opt}</span>
                   </button>
                 );
               })}
