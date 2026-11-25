@@ -50,6 +50,36 @@ function buildF15EX() {
   wing.position.set(0, -0.02, 0.14);
   g.add(wing);
 
+  // Under-wing missile loadout (visible mounts)
+  const missileMat = new THREE.MeshStandardMaterial({ color: 0xdfe6ee, metalness: 0.4, roughness: 0.5 });
+  const tipMat = new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 });
+  const finMat = new THREE.MeshStandardMaterial({ color: 0x8a93a3, metalness: 0.3, roughness: 0.6 });
+  const mounts = [];
+  for (const s of [-1, 1]) {
+    for (let k = 0; k < 3; k++) {
+      const m = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8), missileMat);
+      body.rotation.x = Math.PI / 2;
+      m.add(body);
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 8), tipMat);
+      nose.rotation.x = -Math.PI / 2;
+      nose.position.set(0, 0, -0.32);
+      m.add(nose);
+      for (const f of [-1, 1]) {
+        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.1), finMat);
+        fin.position.set(f * 0.05, 0, 0.18);
+        m.add(fin);
+      }
+      const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.1), finMat);
+      pylon.position.set(0, 0.07, 0);
+      m.add(pylon);
+      m.position.set(s * (0.35 + k * 0.28), -0.1, 0.14);
+      g.add(m);
+      mounts.push(m);
+    }
+  }
+  g.userData.missiles = mounts;
+
   for (const s of [-1, 1]) {
     const tail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.34), bodyMat);
     tail.position.set(s * 0.28, 0.23, 0.56);
@@ -200,6 +230,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const jetTarget = { roll: 0, pitch: -0.08, yaw: 0 };
     const jetState = { roll: 0, pitch: -0.08, yaw: 0 };
     let recoil = 0;
+    let missileIndex = 0;
 
     // Enemy SU-30 targets
     const targets = [];
@@ -322,32 +353,61 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
 
-      // Bank toward the target for a responsive flight feel
+      // The airframe holds steady — only a subtle glance toward the target
       const dx = t.position.x - jet.position.x;
       const dy = t.position.y - jet.position.y;
-      jetTarget.roll = -Math.sign(dx) * Math.min(0.65, Math.abs(dx) * 0.2);
-      jetTarget.yaw = Math.sign(dx) * Math.min(0.4, Math.abs(dx) * 0.12);
-      jetTarget.pitch = -0.08 + Math.min(0.28, Math.abs(dy) * 0.14) * Math.sign(dy);
+      jetTarget.yaw = Math.sign(dx) * Math.min(0.12, Math.abs(dx) * 0.04);
+      jetTarget.pitch = -0.08 + Math.min(0.06, Math.abs(dy) * 0.05) * Math.sign(dy);
 
-      // Recoil + muzzle flash
-      recoil = 0.16;
+      // Muzzle flash at the nose
       muzzle.material.opacity = 1;
       muzzle.scale.setScalar(1.1);
       (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1.5));
 
-      // Bullet (oriented along travel direction) + trailing line
-      const start = jet.position.clone();
-      start.y += 0.1;
-      start.z -= 1.0;
+      // Launch a missile from a wing pylon (cycle through mounts)
+      const mounts = jet.userData.missiles || [];
+      const mount = mounts[missileIndex % Math.max(1, mounts.length)] || null;
+      missileIndex++;
+      const start = new THREE.Vector3();
+      if (mount) mount.getWorldPosition(start);
+      else { start.copy(jet.position); start.y += 0.1; start.z -= 1.0; }
       const end = t.position.clone();
       const dir = end.clone().sub(start).normalize();
-      const bullet = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.05, 0.42, 5, 10),
-        new THREE.MeshBasicMaterial({ color: 0xb8f4ff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
+
+      // Missile body (forward = -z), with exhaust glow
+      const missile = new THREE.Group();
+      const mBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8),
+        new THREE.MeshStandardMaterial({ color: 0xe8eef5, metalness: 0.4, roughness: 0.5 })
       );
-      bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
-      bullet.position.copy(start);
-      scene.add(bullet);
+      mBody.rotation.x = Math.PI / 2;
+      missile.add(mBody);
+      const mNose = new THREE.Mesh(
+        new THREE.ConeGeometry(0.05, 0.16, 8),
+        new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 })
+      );
+      mNose.rotation.x = -Math.PI / 2;
+      mNose.position.set(0, 0, -0.33);
+      missile.add(mNose);
+      for (const s of [-1, 1]) {
+        const fin = new THREE.Mesh(
+          new THREE.BoxGeometry(0.02, 0.12, 0.12),
+          new THREE.MeshStandardMaterial({ color: 0x9aa6b3, metalness: 0.3, roughness: 0.6 })
+        );
+        fin.position.set(s * 0.06, 0, 0.2);
+        missile.add(fin);
+      }
+      const exhaust = new THREE.Mesh(
+        new THREE.SphereGeometry(0.07, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending })
+      );
+      exhaust.position.set(0, 0, 0.28);
+      missile.add(exhaust);
+      missile.userData.exhaust = exhaust;
+
+      missile.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir);
+      missile.position.copy(start);
+      scene.add(missile);
 
       const trailLen = 16;
       const trailPos = new Float32Array(trailLen * 3);
@@ -360,11 +420,11 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
       const trail = new THREE.Line(
         trailGeo,
-        new THREE.LineBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending })
+        new THREE.LineBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending })
       );
       scene.add(trail);
 
-      projectiles.push({ bullet, trail, trailLen, end, correct, target: t, index: i, speed: 78 + Math.random() * 8 });
+      projectiles.push({ bullet: missile, trail, trailLen, end, correct, target: t, index: i, speed: 46 + Math.random() * 8 });
     }
 
     function reset() {
@@ -491,7 +551,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           projectiles.splice(i, 1);
         } else {
           p.bullet.position.add(dir.normalize().multiplyScalar(Math.max(0.4, p.speed * dt)));
-          p.bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+          p.bullet.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, -1), dir.normalize());
+          if (p.bullet.userData.exhaust) p.bullet.userData.exhaust.scale.setScalar(1 + Math.sin(t * 40) * 0.35);
           // Update the trail: shift older points, push current
           const arr = p.trail.geometry.attributes.position.array;
           for (let k = p.trailLen - 1; k > 0; k--) {
