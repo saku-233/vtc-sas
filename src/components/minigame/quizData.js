@@ -178,8 +178,8 @@ export const QUIZ_QUESTIONS = [
 export const QUESTION_TIME = 15;
 export const MAX_HP = 3;
 
-export function scoreToRank(score) {
-  const max = QUIZ_QUESTIONS.length * (100 + QUESTION_TIME * 10) * 5;
+export function scoreToRank(score, count = QUIZ_QUESTIONS.length) {
+  const max = count * (100 + QUESTION_TIME * 10) * 5;
   const ratio = score / max;
   if (ratio >= 0.8) return { rank: "S", label: "LEGENDARY ACE" };
   if (ratio >= 0.6) return { rank: "A", label: "ACE PILOT" };

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { QUIZ_QUESTIONS, MAX_HP, QUESTION_TIME } from "./quizData";
+import { generateQuizQuestions } from "@/lib/server-fns";
 import Game3DScene from "./Game3DScene";
 import QuizStart from "./QuizStart";
 import QuizResult from "./QuizResult";
@@ -15,9 +17,25 @@ export default function CombatGame3D({ fullscreen = false }) {
   const [remaining, setRemaining] = useState(QUESTION_TIME);
   const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
+  const [questions, setQuestions] = useState(QUIZ_QUESTIONS);
+  const [loadingQ, setLoadingQ] = useState(false);
 
   const sceneRef = useRef(null);
   const locked = useRef(false);
+  const fetchQuestions = useServerFn(generateQuizQuestions);
+
+  useEffect(() => {
+    let alive = true;
+    setLoadingQ(true);
+    fetchQuestions({ data: {} })
+      .then((list) => {
+        if (alive && Array.isArray(list) && list.length > 0) setQuestions(list);
+      })
+      .catch(() => {})
+      .finally(() => alive && setLoadingQ(false));
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function start() {
     setPhase("active");
@@ -87,7 +105,7 @@ export default function CombatGame3D({ fullscreen = false }) {
     }
     setCombo(nextCombo);
 
-    const end = nextHp <= 0 || qIndex + 1 >= QUIZ_QUESTIONS.length;
+    const end = nextHp <= 0 || qIndex + 1 >= questions.length;
     setTimeout(() => {
       if (end) setPhase("over");
       else setQIndex((i) => i + 1);
@@ -101,7 +119,7 @@ export default function CombatGame3D({ fullscreen = false }) {
     setTimeout(() => resolveAnswer(i, remaining), 1000);
   }
 
-  const q = QUIZ_QUESTIONS[qIndex];
+  const q = questions[qIndex];
   const pct = Math.max(0, (remaining / QUESTION_TIME) * 100);
   const low = remaining <= 5;
 
@@ -143,7 +161,7 @@ export default function CombatGame3D({ fullscreen = false }) {
           <div className="flex items-start justify-between font-mono text-[11px] uppercase tracking-[0.22em] text-white/90">
             <div className="flex flex-col gap-0.5">
               <span className="text-cyan-300">
-                TGT {String(qIndex + 1).padStart(2, "0")} / {String(QUIZ_QUESTIONS.length).padStart(2, "0")}
+                TGT {String(qIndex + 1).padStart(2, "0")} / {String(questions.length).padStart(2, "0")}
               </span>
               <span className="text-[9px] tracking-[0.3em] text-white/40">F-15EX · MISSION</span>
             </div>
@@ -233,6 +251,11 @@ export default function CombatGame3D({ fullscreen = false }) {
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/65 p-5 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-primary/25 bg-background/95 p-6 shadow-2xl">
             <QuizStart onStart={start} />
+            {loadingQ ? (
+              <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-primary/70">
+                正在由 Gemini 生成 IT114115 题目…
+              </p>
+            ) : null}
           </div>
         </div>
       )}
@@ -245,7 +268,7 @@ export default function CombatGame3D({ fullscreen = false }) {
               score={score}
               maxCombo={maxCombo}
               hits={hits}
-              total={QUIZ_QUESTIONS.length}
+              total={questions.length}
               onRestart={start}
             />
           </div>

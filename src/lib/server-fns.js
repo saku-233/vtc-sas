@@ -97,6 +97,41 @@ export const promoteToTeacher = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const generateQuizQuestions = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    const base44 = context.getBase44();
+    const prompt =
+      "你是 VTC IT114115《云端运算及安全基础》课程出题官。请围绕该课程核心内容（云计算服务模式 IaaS/PaaS/SaaS、部署模型、虚拟化、容器、多租户、弹性、按需自助、广域访问、可度量服务、数据安全与备份等）生成 10 道中文单选题，每题 4 个选项，并标注正确答案索引(0-3)。题目需准确、贴近课程、避免重复，难度适中。";
+    const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt,
+      model: "gemini_3_8_flash",
+      response_json_schema: {
+        type: "object",
+        properties: {
+          questions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                subject: { type: "string" },
+                question: { type: "string" },
+                options: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 },
+                answer: { type: "integer", minimum: 0, maximum: 3 },
+              },
+              required: ["subject", "question", "options", "answer"],
+            },
+          },
+        },
+        required: ["questions"],
+      },
+    });
+    const list = Array.isArray(res?.questions) ? res.questions : [];
+    return list
+      .filter((q) => q?.question && Array.isArray(q.options) && q.options.length === 4 && Number.isInteger(q.answer))
+      .slice(0, 10);
+  });
+
 export const askGemini = createServerFn({ method: "POST" })
   .validator(z.object({ question: z.string().min(1).max(500) }))
   .handler(async ({ data, context }) => {
