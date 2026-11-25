@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
 import AttendanceSummary from "@/components/attendance/AttendanceSummary";
 import AttendanceByStudent from "@/components/teacher/AttendanceByStudent";
+import MonthlyAttendanceReport from "@/components/teacher/MonthlyAttendanceReport";
 import { listAttendance, listCourses } from "@/lib/server-fns";
 import { teacherOnly } from "@/lib/routeGuards";
 
@@ -26,6 +27,7 @@ function TeacherAttendancePage() {
         description="按学生查看每节课的出席状况，谁有上学、谁缺席一目了然。"
       />
       <AttendanceSummary attendance={attendance} />
+      <MonthlyAttendanceReport attendance={attendance} courses={courses} />
       <AttendanceByStudent attendance={attendance} courses={courses} />
     </div>
   );
