@@ -41,7 +41,6 @@ const HERO_IMAGE =
 function WelcomePage() {
   const { user } = useAuth();
   const isTeacher = user?.role === "admin";
-  const homePath = isTeacher ? "/teacher" : "/student/dashboard";
 
   return (
     <div className="space-y-12">
@@ -69,25 +68,16 @@ function WelcomePage() {
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/85">
             课程、作业、出席与学习助手集中在一个学生门户。登录后即可进入你的学习工作台。
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            {user ? (
-              <Link
-                to={homePath}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                进入工作台
-              </Link>
-            ) : (
-              <a
-                href="https://moodle.vtc.edu.hk/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                <GraduationCap className="h-4 w-4" />
-                Login to VTC Moodle
-              </a>
-            )}
+          <div className="mt-6">
+            <a
+              href="https://moodle.vtc.edu.hk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <GraduationCap className="h-4 w-4" />
+              Login to VTC Moodle
+            </a>
           </div>
         </div>
       </section>
