@@ -648,7 +648,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function enemyAttack(i) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
-      const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 5.8);
+      const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 15);
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
