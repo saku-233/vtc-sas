@@ -3,7 +3,6 @@ import { ArrowLeft, LogOut, Shield, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { listUsers } from "@/lib/server-fns";
 import UserManagement from "@/components/teacher/UserManagement";
-import ViewAsChooser from "@/components/admin/ViewAsChooser";
 import AdminLogin from "@/components/admin/AdminLogin";
 
 export const Route = createFileRoute("/admin")({
@@ -112,7 +111,6 @@ function AdminConsole() {
             </span>
           </div>
           <UserManagement users={users} />
-          <ViewAsChooser users={users} />
         </div>
       </main>
     </div>

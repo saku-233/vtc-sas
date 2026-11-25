@@ -11,13 +11,10 @@ import {
   Bell,
   Gamepad2,
   User,
-  Eye,
-  X,
   ChevronDown,
   Menu,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { useViewAs } from "@/lib/ViewAsContext";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -55,18 +52,15 @@ function isLinkActive(pathname, link) {
 
 export default function AppNav() {
   const { user, logout, navigateToLogin } = useAuth();
-  const { viewAs, clearViewAs } = useViewAs();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // 以某用户身份查看时，导航栏按该用户的角色呈现。
-  const effectiveRole = viewAs?.role ?? user?.role;
   // 导航与主题按当前页面区域决定：学生区显示学生导航，教师区显示教师导航，
-  // 其余区域才回退到用户角色，避免管理员浏览学生页时出现「我发布的作业」。
+  // 其余区域才回退到用户角色。
   const isStudentArea = pathname.startsWith("/student");
   const isTeacherArea = pathname.startsWith("/teacher");
-  const isTeacher = isTeacherArea || (!isStudentArea && effectiveRole === "admin");
+  const isTeacher = isTeacherArea || (!isStudentArea && user?.role === "admin");
   const links = user ? (isTeacher ? TEACHER_LINKS : STUDENT_LINKS) : [];
-  const displayName = viewAs?.email || user?.email || user?.full_name || "?";
+  const displayName = user?.email || user?.full_name || "?";
   const initial = displayName.charAt(0).toUpperCase();
   const brandTo = user ? (isTeacher ? "/teacher" : "/student/dashboard") : "/";
   const activeLink = links.find((l) => isLinkActive(pathname, l)) ?? links[0];
@@ -112,11 +106,6 @@ export default function AppNav() {
         </button>
       </DropdownMenuItem>
     );
-  }
-
-  function exitViewAs() {
-    clearViewAs();
-    navigate({ to: "/admin" });
   }
 
   return (
@@ -195,15 +184,6 @@ export default function AppNav() {
 
         {user ? (
           <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-            {viewAs ? (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#fff7ed] px-2.5 py-1.5 text-[11px] font-medium whitespace-nowrap text-[#9a3412]"
-                title={`正在以 ${viewAs.email} 身份查看`}
-              >
-                <Eye className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{viewAs.email}</span>
-              </span>
-            ) : null}
             <span
               className="grid h-8 w-8 place-items-center rounded-full bg-[#e8f1ee] text-[13px] font-bold text-[#265e53]"
               title={displayName}
@@ -213,17 +193,6 @@ export default function AppNav() {
             <span className="hidden text-[11px] whitespace-nowrap text-[#6b7280] md:block">
               {isTeacher ? "教师" : "学生"}
             </span>
-            {viewAs ? (
-              <button
-                type="button"
-                onClick={exitViewAs}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#fed7aa] bg-[#fff7ed] px-2.5 py-2 text-xs whitespace-nowrap text-[#9a3412] transition-[color,border-color,background-color,transform] duration-nav ease-nav hover:bg-[#ffedd5] active:scale-[.97] sm:px-3"
-                title="退出以用户身份查看"
-              >
-                <X className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
-                <span className="hidden sm:inline">退出查看</span>
-              </button>
-            ) : null}
             <button
               type="button"
               onClick={logout}

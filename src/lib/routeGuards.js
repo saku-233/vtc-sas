@@ -1,12 +1,12 @@
 import { redirect } from "@tanstack/react-router";
 
-// 学生页面：必须登录。管理员（root）可自由访问查看学生视角，其余学生正常进入。
+// 学生页面：仅学生（role=user）可访问。未登录跳登录页，教师（admin）挡回教师首页。
 export function studentOnly({ context }) {
   if (!context.user) throw redirect({ to: "/login" });
-  if (context.user.role === "admin") return;
+  if (context.user.role !== "user") throw redirect({ to: "/teacher" });
 }
 
-// 教师页面：必须登录。学生（非 admin）访问时跳转到学生仪表板
+// 教师页面：仅教师（admin）可访问。未登录跳登录页，学生挡回学生仪表板。
 export function teacherOnly({ context }) {
   if (!context.user) throw redirect({ to: "/login" });
   if (context.user.role !== "admin") throw redirect({ to: "/student/dashboard" });

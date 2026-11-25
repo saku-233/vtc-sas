@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import CombatGame3D from "@/components/minigame/CombatGame3D";
 import { AuthGateError, requireSignedIn } from "@/components/auth/AuthGate";
 
 export const Route = createFileRoute("/minigame")({
   ssr: false,
-  beforeLoad: requireSignedIn,
+  beforeLoad: async ({ context, location }) => {
+    const { user } = await requireSignedIn({ context, location });
+    if (user.role !== "user") throw redirect({ to: "/teacher" });
+  },
   errorComponent: AuthGateError,
   head: () => ({
     meta: [
