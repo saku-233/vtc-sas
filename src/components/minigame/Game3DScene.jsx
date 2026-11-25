@@ -26,78 +26,135 @@ function makeLabelTexture(letter, color) {
 
 function buildF15EX() {
   const g = new THREE.Group();
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8a93a3, metalness: 0.55, roughness: 0.4 });
-  const darkMat = new THREE.MeshStandardMaterial({ color: 0x3c434c, metalness: 0.5, roughness: 0.4 });
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x8a919e, metalness: 0.5, roughness: 0.45 });
+  const lightMat = new THREE.MeshStandardMaterial({ color: 0xb4b9c4, metalness: 0.45, roughness: 0.5 });
+  const darkMat = new THREE.MeshStandardMaterial({ color: 0x23262b, metalness: 0.5, roughness: 0.5 });
+  const intakeMat = new THREE.MeshStandardMaterial({ color: 0x1c1e23, metalness: 0.4, roughness: 0.6 });
+  const accentMat = new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 });
 
-  const fuse = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 1.7, 14), bodyMat);
+  // Fuselage
+  const fuse = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.14, 1.85, 18), bodyMat);
   fuse.rotation.x = Math.PI / 2;
   g.add(fuse);
 
-  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.42, 14), bodyMat);
+  // Radome
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.5, 18), lightMat);
   nose.rotation.x = -Math.PI / 2;
-  nose.position.set(0, 0, -1.06);
+  nose.position.set(0, 0, -1.17);
   g.add(nose);
 
+  // Canopy
   const canopy = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2),
-    new THREE.MeshStandardMaterial({ color: 0x4a6fa5, metalness: 0.7, roughness: 0.1, transparent: true, opacity: 0.85 })
+    new THREE.SphereGeometry(0.14, 14, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x3a5a8a, metalness: 0.75, roughness: 0.08, transparent: true, opacity: 0.85 })
   );
-  canopy.position.set(0, 0.09, -0.34);
-  canopy.scale.set(1, 1.7, 0.7);
+  canopy.position.set(0, 0.1, -0.44);
+  canopy.scale.set(1, 1.85, 0.75);
   g.add(canopy);
 
-  const wing = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.05, 0.72), bodyMat);
-  wing.position.set(0, -0.02, 0.14);
-  g.add(wing);
+  // Large rectangular air intakes (F-15 signature)
+  for (const s of [-1, 1]) {
+    const intake = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.18, 0.52), intakeMat);
+    intake.position.set(s * 0.21, -0.07, -0.52);
+    g.add(intake);
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.19, 0.07), lightMat);
+    lip.position.set(s * 0.21, -0.07, -0.77);
+    g.add(lip);
+  }
 
-  // Under-wing missile loadout (visible mounts)
-  const missileMat = new THREE.MeshStandardMaterial({ color: 0xdfe6ee, metalness: 0.4, roughness: 0.5 });
+  // Wings + lighter wing tips
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(2.25, 0.05, 0.8), bodyMat);
+  wing.position.set(0, -0.03, 0.18);
+  g.add(wing);
+  for (const s of [-1, 1]) {
+    const tip = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.05, 0.52), lightMat);
+    tip.position.set(s * 1.12, -0.03, 0.26);
+    g.add(tip);
+  }
+
+  // Twin canted vertical stabilizers with red markings + horizontal stabs
+  for (const s of [-1, 1]) {
+    const stab = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.46, 0.36), bodyMat);
+    stab.position.set(s * 0.32, 0.24, 0.62);
+    stab.rotation.z = s * 0.16;
+    g.add(stab);
+    const tipMark = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.13, 0.36), accentMat);
+    tipMark.position.set(s * 0.34, 0.42, 0.62);
+    tipMark.rotation.z = s * 0.16;
+    g.add(tipMark);
+    const hStab = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.04, 0.3), bodyMat);
+    hStab.position.set(s * 0.5, 0.02, 0.64);
+    g.add(hStab);
+  }
+
+  // Centerline fuel tank
+  const tank = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.7, 14), lightMat);
+  tank.rotation.x = Math.PI / 2;
+  tank.position.set(0, -0.16, 0.05);
+  g.add(tank);
+  const tankCap = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), darkMat);
+  tankCap.position.set(0, -0.16, -0.3);
+  g.add(tankCap);
+
+  // Under-wing missile loadout: white AIM-120 style on racks + wingtip Sidewinders
+  const missileMat = new THREE.MeshStandardMaterial({ color: 0xeef2f6, metalness: 0.3, roughness: 0.5 });
   const tipMat = new THREE.MeshStandardMaterial({ color: 0xc6403a, metalness: 0.3, roughness: 0.5 });
-  const finMat = new THREE.MeshStandardMaterial({ color: 0x8a93a3, metalness: 0.3, roughness: 0.6 });
+  const finMat = new THREE.MeshStandardMaterial({ color: 0x8a919e, metalness: 0.3, roughness: 0.6 });
   const mounts = [];
   for (const s of [-1, 1]) {
+    const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.1, 0.18), finMat);
+    pylon.position.set(s * 0.62, -0.07, 0.2);
+    g.add(pylon);
     for (let k = 0; k < 3; k++) {
       const m = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8), missileMat);
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.46, 10), missileMat);
       body.rotation.x = Math.PI / 2;
       m.add(body);
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 8), tipMat);
-      nose.rotation.x = -Math.PI / 2;
-      nose.position.set(0, 0, -0.32);
-      m.add(nose);
+      const mNose = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.13, 10), tipMat);
+      mNose.rotation.x = -Math.PI / 2;
+      mNose.position.set(0, 0, -0.29);
+      m.add(mNose);
       for (const f of [-1, 1]) {
-        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.1), finMat);
-        fin.position.set(f * 0.05, 0, 0.18);
+        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.08, 0.08), finMat);
+        fin.position.set(f * 0.05, 0, 0.16);
         m.add(fin);
       }
-      const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.1), finMat);
-      pylon.position.set(0, 0.07, 0);
-      m.add(pylon);
-      m.position.set(s * (0.35 + k * 0.28), -0.1, 0.14);
+      m.position.set(s * (0.62 + (k - 1) * 0.12), -0.13, 0.2);
       g.add(m);
       mounts.push(m);
     }
+    const w = new THREE.Group();
+    const wb = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.38, 10), missileMat);
+    wb.rotation.x = Math.PI / 2;
+    w.add(wb);
+    const wn = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.12, 10), tipMat);
+    wn.rotation.x = -Math.PI / 2;
+    wn.position.set(0, 0, -0.25);
+    w.add(wn);
+    for (const f of [-1, 1]) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.07, 0.07), finMat);
+      fin.position.set(f * 0.045, 0, 0.14);
+      w.add(fin);
+    }
+    w.position.set(s * 1.05, -0.06, 0.2);
+    g.add(w);
+    mounts.push(w);
   }
   g.userData.missiles = mounts;
 
-  for (const s of [-1, 1]) {
-    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.44, 0.34), bodyMat);
-    tail.position.set(s * 0.28, 0.23, 0.56);
-    tail.rotation.z = s * 0.18;
-    g.add(tail);
-    const stab = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.04, 0.3), bodyMat);
-    stab.position.set(s * 0.46, 0, 0.6);
-    g.add(stab);
-  }
-
+  // Twin engine nozzles with afterburner glow
   const glows = [];
   for (const s of [-1, 1]) {
-    const eng = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.28, 10), darkMat);
+    const eng = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.32, 12), darkMat);
     eng.rotation.x = Math.PI / 2;
-    eng.position.set(s * 0.18, -0.02, 0.96);
+    eng.position.set(s * 0.19, -0.03, 1.0);
     g.add(eng);
-    const glow = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshBasicMaterial({ color: 0x99ddff }));
-    glow.position.set(s * 0.18, -0.02, 1.12);
+    const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.1, 12), lightMat);
+    nozzle.rotation.x = Math.PI / 2;
+    nozzle.position.set(s * 0.19, -0.03, 1.18);
+    g.add(nozzle);
+    const glow = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), new THREE.MeshBasicMaterial({ color: 0x99ddff }));
+    glow.position.set(s * 0.19, -0.03, 1.26);
     g.add(glow);
     glows.push(glow);
   }
