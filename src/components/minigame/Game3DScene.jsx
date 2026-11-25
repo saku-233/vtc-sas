@@ -233,12 +233,13 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       mountains.add(snow);
       peaks.push({ cone, snow, speed, farH });
     }
+    const sideX = () => (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 22);
     for (let i = 0; i < 20; i++) {
-      const x = (Math.random() * 0.7 - 0.85) * 30;
+      const x = sideX();
       addPeak(x, -40 + (Math.random() - 0.5) * 8, 9 + Math.random() * 9, rockMat, 7, 9 + Math.random() * 9);
     }
     for (let i = 0; i < 12; i++) {
-      const x = (Math.random() * 0.65 - 0.8) * 26;
+      const x = sideX();
       addPeak(x, -24 + (Math.random() - 0.5) * 6, 6 + Math.random() * 6, rockMat2, 11, 6 + Math.random() * 6);
     }
     scene.add(mountains);
@@ -359,7 +360,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       peaks.forEach((p) => {
         const nz = p.cone.position.z + dt * p.speed;
         if (nz > 14) {
-          const nx = (Math.random() * 0.7 - 0.85) * 30;
+          const nx = (Math.random() < 0.5 ? -1 : 1) * (4 + Math.random() * 22);
           const h = p.farH;
           p.cone.position.set(nx, h / 2 - 9, -48 - Math.random() * 6);
           p.cone.rotation.y = Math.random() * Math.PI;
