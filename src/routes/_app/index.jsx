@@ -8,7 +8,6 @@ import {
   Bell,
   Gamepad2,
   User,
-  LogIn,
   GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
@@ -40,7 +39,7 @@ const HERO_IMAGE =
   "https://media.base44.com/images/public/6afe60c183d2b0cd3452a1be/2b869fb455fcdf55dfced63bd0561461_generated_image.png";
 
 function WelcomePage() {
-  const { user, navigateToLogin } = useAuth();
+  const { user } = useAuth();
   const isTeacher = user?.role === "admin";
   const homePath = isTeacher ? "/teacher" : "/student/dashboard";
 
@@ -79,24 +78,16 @@ function WelcomePage() {
                 进入工作台
               </Link>
             ) : (
-              <button
-                type="button"
-                onClick={() => navigateToLogin()}
+              <a
+                href="https://moodle.vtc.edu.hk/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
               >
-                <LogIn className="h-4 w-4" />
-                登录
-              </button>
+                <GraduationCap className="h-4 w-4" />
+                Login to VTC Moodle
+              </a>
             )}
-            <a
-              href="https://moodle.vtc.edu.hk/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-            >
-              <GraduationCap className="h-4 w-4" />
-              VTC Moodle 登录
-            </a>
           </div>
         </div>
       </section>
