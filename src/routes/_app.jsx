@@ -23,9 +23,10 @@ function AppLayout() {
   const isStudentArea = pathname.startsWith("/student");
   const isTeacherArea = pathname.startsWith("/teacher");
   const isTeacher = isTeacherArea || (!isStudentArea && effectiveRole === "admin");
+  const isLanding = pathname === "/";
   return (
     <div className={`min-h-screen bg-background ${isTeacher ? "theme-teacher" : ""}`}>
-      <AppNav />
+      {!isLanding ? <AppNav /> : null}
       <main className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
         <Outlet />
       </main>
