@@ -75,7 +75,7 @@ function WelcomePage() {
                 to={homePath}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
               >
-                {isTeacher ? "进入教师后台" : "进入仪表板"}
+                进入工作台
               </Link>
             ) : (
               <button
