@@ -27,9 +27,14 @@ export default function AttendanceByCourse({ courses, attendance }) {
               <ul className="mt-4 divide-y divide-border/70">
                 {rows.map((row) => (
                   <li key={row.id} className="flex items-center justify-between py-2.5">
-                    <span className="text-sm text-foreground/85">
-                      {format(parseISO(row.date), "M月d日 EEEE", { locale: zhCN })}
-                    </span>
+                    <div className="flex min-w-0 items-center gap-2 text-sm text-foreground/85">
+                      <span className="shrink-0">{format(parseISO(row.date), "M月d日 EEEE", { locale: zhCN })}</span>
+                      {row.student ? (
+                        <span className="truncate text-muted-foreground">
+                          · {row.student}{row.studentId ? `（${row.studentId}）` : ""}
+                        </span>
+                      ) : null}
+                    </div>
                     <AttendanceBadge status={row.status} />
                   </li>
                 ))}
