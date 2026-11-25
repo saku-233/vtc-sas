@@ -2,6 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import TimetablePanel from "@/components/home/TimetablePanel";
+import SubjectStatsPanel from "@/components/home/SubjectStatsPanel";
 import { listAssignments, listCourses } from "@/lib/server-fns";
 import { dueLabel, DONE_STATUSES } from "@/lib/assignments";
 
@@ -79,6 +80,8 @@ function HomePage() {
               </Link>
             ))}
           </div>
+
+          <SubjectStatsPanel courses={courses} assignments={assignments} />
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
