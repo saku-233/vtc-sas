@@ -603,8 +603,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         if (adx > 9) continue;
         const w = (1 - Math.min(1, Math.abs(dz) / 7)) * (1 - adx / 9);
         if (w <= 0) continue;
-        ax += -Math.sign(dx || (i % 2 ? 1 : -1)) * w * 2.4; // push away horizontally
-        ay += w * 1.8; // climb over
+        ax += -Math.sign(dx || (i % 2 ? 1 : -1)) * w * 2.6; // push away horizontally (no climb)
       }
       return { ax, ay };
     }
@@ -758,8 +757,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
-        diveDur: 0.34,
-        returnDur: 0.36,
+        diveDur: 0.42,
+        returnDur: 0.42,
         startPos: start,
         behindPos: behind,
         base,
@@ -769,7 +768,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       // Cinematic rear close-up on the attacking enemy
       cameraCue = {
         t0: clock.elapsedTime,
-        dur: 0.95,
+        dur: 1.05,
         pos: new THREE.Vector3(behind.x, behind.y + 0.5, behind.z + 2.6),
         look: behind.clone(),
       };
@@ -861,10 +860,11 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       recoil *= Math.pow(0.02, dt);
 
       const pjAv = computeAvoid(0, 0.35, jet.position.z);
-      jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05 + pjAv.ay;
+      jet.position.x = pjAv.ax * 0.5; // lateral dodge only, no climb
+      jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05;
       jet.position.z = 1.4 + recoil;
-      jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03;
-      jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015 - pjAv.ay * 0.04;
+      jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03 + pjAv.ax * 0.05;
+      jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015;
       jet.rotation.y = jetState.yaw;
       (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1 + Math.sin(t * 18) * 0.2));
 
@@ -950,7 +950,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           const a = t - atk.t0;
           if (atk.phase === "dive") {
             const k = Math.min(1, a / atk.diveDur);
-            const e = 1 - Math.pow(1 - k, 2);
+            const e = k * k * (3 - 2 * k); // smoothstep — smoother in/out
             const u = 1 - e;
             const s = atk.startPos, c = atk.diveCtrl, b = atk.behindPos;
             tg.position.set(
@@ -966,7 +966,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
             if (a > 0.12) { atk.phase = "return"; atk.t0 = t; atk.startPos = tg.position.clone(); }
           } else if (atk.phase === "return") {
             const k = Math.min(1, a / atk.returnDur);
-            const e = 1 - Math.pow(1 - k, 2);
+            const e = k * k * (3 - 2 * k); // smoothstep — smoother in/out
             const u = 1 - e;
             const s = atk.startPos, c = atk.returnCtrl, b = atk.base;
             tg.position.set(
@@ -981,11 +981,10 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         } else {
           const av = computeAvoid(TARGET_X[i], tg.userData.baseY, TARGET_Z);
           tg.position.x = TARGET_X[i] + av.ax;
-          tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22 + av.ay;
+          tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
           tg.rotation.roll = (tg.rotation.roll || 0) + dt * tg.userData.spin;
           tg.rotation.z = Math.sin(t * 0.6 + i) * 0.08 + av.ax * 0.14;
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08;
-          tg.rotation.x = -av.ay * 0.05;
         }
       });
 
