@@ -227,12 +227,12 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     jet.add(muzzle);
     jet.userData.muzzle = muzzle;
 
-    // 3D lock-on reticle (shown on the targeted enemy before firing)
-    const lockTex = (() => {
+    // 3D lock-on bracket (stationary, on the target) + aiming diamond (moves to overlap)
+    const bracketTex = (() => {
       const c = document.createElement("canvas");
       c.width = c.height = 128;
       const ctx = c.getContext("2d");
-      ctx.strokeStyle = "#34d399";
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 6;
       ctx.lineCap = "round";
       const m = 16, l = 34;
@@ -246,13 +246,44 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       tex.needsUpdate = true;
       return tex;
     })();
+    const diamondTex = (() => {
+      const c = document.createElement("canvas");
+      c.width = c.height = 128;
+      const ctx = c.getContext("2d");
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 6;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(64, 10); ctx.lineTo(118, 64); ctx.lineTo(64, 118); ctx.lineTo(10, 64); ctx.closePath();
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(64, 64, 4, 0, Math.PI * 2); ctx.fill();
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    })();
     const lockReticle = new THREE.Sprite(
-      new THREE.SpriteMaterial({ map: lockTex, transparent: true, depthTest: false, opacity: 0 })
+      new THREE.SpriteMaterial({ map: bracketTex, color: 0x34d399, transparent: true, depthTest: false, opacity: 0 })
     );
-    lockReticle.scale.set(1.4, 1.4, 1);
+    lockReticle.scale.set(0.5, 0.5, 1);
     lockReticle.visible = false;
     lockReticle.renderOrder = 5;
     scene.add(lockReticle);
+    const aimReticle = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: diamondTex, color: 0x34d399, transparent: true, depthTest: false, opacity: 0 })
+    );
+    aimReticle.scale.set(0.5, 0.5, 1);
+    aimReticle.visible = false;
+    aimReticle.renderOrder = 6;
+    scene.add(aimReticle);
+
+    // aim animation state
+    let aimActive = false;
+    let aimT = 0;
+    const aimDur = 0.34;
+    let overlapped = false;
+    const aimStart = new THREE.Vector3();
+    const aimEnd = new THREE.Vector3();
 
     // Smooth banking / pitch state for the player jet
     const jetTarget = { roll: 0, pitch: -0.08, yaw: 0 };
@@ -381,6 +412,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
       lockReticle.visible = false;
+      aimReticle.visible = false;
+      aimActive = false;
 
       // The airframe holds steady — only a subtle glance toward the target
       const dx = t.position.x - jet.position.x;
@@ -469,7 +502,13 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       muzzle.material.opacity = 0;
       lockReticle.visible = false;
       lockReticle.material.opacity = 0;
-      lockReticle.scale.set(1.4, 1.4, 1);
+      lockReticle.material.color.setHex(0x34d399);
+      lockReticle.scale.set(0.5, 0.5, 1);
+      aimReticle.visible = false;
+      aimReticle.material.opacity = 0;
+      aimReticle.material.color.setHex(0x34d399);
+      aimActive = false;
+      overlapped = false;
       explosions.forEach((e) => scene.remove(e));
       explosions.length = 0;
       targets.forEach((t) => {
@@ -489,7 +528,18 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       lockReticle.userData = { target: t };
       lockReticle.visible = true;
       lockReticle.material.opacity = 0;
-      lockReticle.scale.set(0.25, 0.25, 1);
+      lockReticle.material.color.setHex(0x34d399);
+      lockReticle.scale.set(0.5, 0.5, 1);
+      aimStart.set(jet.position.x, jet.position.y, jet.position.z - 0.6);
+      aimEnd.copy(t.position);
+      aimReticle.position.copy(aimStart);
+      aimReticle.visible = true;
+      aimReticle.material.opacity = 0;
+      aimReticle.material.color.setHex(0x34d399);
+      aimReticle.scale.set(0.5, 0.5, 1);
+      aimActive = true;
+      aimT = 0;
+      overlapped = false;
     }
 
     apiRef.current = { fireAt, reset, shake, lockOn };
@@ -524,14 +574,24 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       muzzle.material.opacity = Math.max(0, muzzle.material.opacity - dt * 7);
       muzzle.scale.setScalar(1.1 + (1 - muzzle.material.opacity) * 0.6);
 
-      // Lock-on reticle: follow the target, fade/scale in
+      // Lock-on bracket: stationary on the target (fade in only)
       if (lockReticle.visible) {
         const tg = lockReticle.userData.target;
         if (tg && tg.userData.alive) lockReticle.position.copy(tg.position);
-        lockReticle.material.opacity = Math.min(1, lockReticle.material.opacity + dt * 6);
-        const ns = lockReticle.scale.x + (0.5 - lockReticle.scale.x) * (1 - Math.pow(0.02, dt));
-        const pulse = Math.sin(t * 8) * 0.02;
-        lockReticle.scale.set(ns + pulse, ns + pulse, 1);
+        lockReticle.material.opacity = Math.min(1, lockReticle.material.opacity + dt * 8);
+      }
+      // Aiming diamond: moves from the player to overlap the lock bracket, then both turn red
+      if (aimActive) {
+        aimT += dt / aimDur;
+        const k = Math.min(1, aimT);
+        const e = 1 - Math.pow(1 - k, 2);
+        aimReticle.position.lerpVectors(aimStart, aimEnd, e);
+        aimReticle.material.opacity = Math.min(1, aimReticle.material.opacity + dt * 8);
+        if (k >= 1 && !overlapped) {
+          overlapped = true;
+          lockReticle.material.color.setHex(0xff3030);
+          aimReticle.material.color.setHex(0xff3030);
+        }
       }
 
       const sp = starGeo.attributes.position.array;
