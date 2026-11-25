@@ -154,7 +154,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     let height = mount.clientHeight || 400;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a1a30, 18, 40);
+    scene.fog = new THREE.Fog(0x0a1a30, 26, 72);
 
     const bgCanvas = document.createElement("canvas");
     bgCanvas.width = 16;
@@ -216,6 +216,55 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xbbddff, size: 0.09, transparent: true, opacity: 0.85 }));
     scene.add(stars);
+
+    // Alpine mountain range
+    const mountains = new THREE.Group();
+    const rockMat = new THREE.MeshStandardMaterial({ color: 0x2a3a52, roughness: 0.95, flatShading: true });
+    const snowMat = new THREE.MeshStandardMaterial({ color: 0xe4eef7, roughness: 0.6, flatShading: true });
+    const rockMat2 = new THREE.MeshStandardMaterial({ color: 0x1f2c40, roughness: 0.95, flatShading: true });
+    function addPeak(x, z, h, mat) {
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(3.5 + Math.random() * 3, h, 5), mat);
+      cone.position.set(x, h / 2 - 9, z);
+      cone.rotation.y = Math.random() * Math.PI;
+      mountains.add(cone);
+      const snow = new THREE.Mesh(new THREE.ConeGeometry(1.3, h * 0.32, 5), snowMat);
+      snow.position.set(x, h - 9 - h * 0.12, z);
+      mountains.add(snow);
+    }
+    for (let i = 0; i < 20; i++) {
+      const x = (i - 10) * 5 + (Math.random() - 0.5) * 3;
+      addPeak(x, -40, 9 + Math.random() * 9, rockMat);
+    }
+    for (let i = 0; i < 12; i++) {
+      const x = (i - 6) * 8 + (Math.random() - 0.5) * 4;
+      addPeak(x, -24, 6 + Math.random() * 6, rockMat2);
+    }
+    scene.add(mountains);
+
+    // Speed streaks (motion lines)
+    const streakCount = 140;
+    const streakGeo = new THREE.BufferGeometry();
+    const sPos = new Float32Array(streakCount * 6);
+    const sVel = new Float32Array(streakCount);
+    for (let i = 0; i < streakCount; i++) {
+      const x = (Math.random() - 0.5) * 46;
+      const y = (Math.random() - 0.5) * 22 + 1;
+      const z = -Math.random() * 46 - 2;
+      const len = 1.2 + Math.random() * 1.8;
+      sPos[i * 6] = x;
+      sPos[i * 6 + 1] = y;
+      sPos[i * 6 + 2] = z;
+      sPos[i * 6 + 3] = x;
+      sPos[i * 6 + 4] = y;
+      sPos[i * 6 + 5] = z - len;
+      sVel[i] = 26 + Math.random() * 30;
+    }
+    streakGeo.setAttribute("position", new THREE.BufferAttribute(sPos, 3));
+    const streaks = new THREE.LineSegments(
+      streakGeo,
+      new THREE.LineBasicMaterial({ color: 0xaad6ff, transparent: true, opacity: 0.55 })
+    );
+    scene.add(streaks);
 
     const projectiles = [];
     const explosions = [];
@@ -300,10 +349,32 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
       const sp = starGeo.attributes.position.array;
       for (let i = 0; i < starCount; i++) {
-        sp[i * 3 + 2] += dt * 9;
+        sp[i * 3 + 2] += dt * 22;
         if (sp[i * 3 + 2] > 8) sp[i * 3 + 2] -= 48;
       }
       starGeo.attributes.position.needsUpdate = true;
+
+      const stp = streakGeo.attributes.position.array;
+      for (let i = 0; i < streakCount; i++) {
+        const nz = stp[i * 6 + 2] + dt * sVel[i];
+        const nl = stp[i * 6 + 5] - stp[i * 6 + 2];
+        stp[i * 6 + 2] = nz;
+        stp[i * 6 + 5] = nz + nl;
+        if (nz > 9) {
+          const x = (Math.random() - 0.5) * 46;
+          const y = (Math.random() - 0.5) * 22 + 1;
+          const z = -46 - Math.random() * 6;
+          const len = 1.2 + Math.random() * 1.8;
+          stp[i * 6] = x;
+          stp[i * 6 + 1] = y;
+          stp[i * 6 + 2] = z;
+          stp[i * 6 + 3] = x;
+          stp[i * 6 + 4] = y;
+          stp[i * 6 + 5] = z - len;
+          sVel[i] = 26 + Math.random() * 30;
+        }
+      }
+      streakGeo.attributes.position.needsUpdate = true;
 
       targets.forEach((tg, i) => {
         if (!tg.userData.alive) return;
