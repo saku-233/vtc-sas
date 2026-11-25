@@ -19,6 +19,40 @@ export const listAttendance = createServerFn({ method: "GET" }).handler(async ({
   return items;
 });
 
+const AssignmentInput = z.object({
+  courseCode: z.string().min(1),
+  title: z.string().min(1).max(120),
+  type: z.string().max(40).optional(),
+  weight: z.number().min(0).max(100).optional(),
+  due: z.string().optional(),
+  status: z.enum(["未开始", "进行中", "已提交", "已评分"]).optional(),
+  note: z.string().max(500).optional(),
+});
+
+export const createAssignment = createServerFn({ method: "POST" })
+  .validator(AssignmentInput)
+  .handler(({ data, context }) => context.getBase44().entities.Assignment.create(data));
+
+export const bulkCreateAssignments = createServerFn({ method: "POST" })
+  .validator(z.object({ items: z.array(AssignmentInput).min(1).max(200) }))
+  .handler(({ data, context }) => context.getBase44().entities.Assignment.bulkCreate(data.items));
+
+export const updateAssignment = createServerFn({ method: "POST" })
+  .validator(z.object({ id: z.string(), ...AssignmentInput.shape }))
+  .handler(({ data: { id, ...patch }, context }) => context.getBase44().entities.Assignment.update(id, patch));
+
+export const bulkUpdateAssignments = createServerFn({ method: "POST" })
+  .validator(z.object({ items: z.array(z.object({ id: z.string(), ...AssignmentInput.shape })).min(1).max(500) }))
+  .handler(({ data, context }) => context.getBase44().entities.Assignment.bulkUpdate(data.items));
+
+export const deleteAssignment = createServerFn({ method: "POST" })
+  .validator(z.object({ id: z.string() }))
+  .handler(({ data, context }) => context.getBase44().entities.Assignment.delete(data.id));
+
+export const bulkDeleteAssignments = createServerFn({ method: "POST" })
+  .validator(z.object({ ids: z.array(z.string()).min(1).max(500) }))
+  .handler(({ data, context }) => context.getBase44().entities.Assignment.deleteMany({ id: { $in: data.ids } }));
+
 export const listReminders = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   const base44 = context.getBase44();
   const { items } = await base44.entities.Reminder.list({ sort: "-created_date", limit: 100 });
