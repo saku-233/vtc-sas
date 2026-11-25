@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { QUIZ_QUESTIONS, MAX_HP, QUESTION_TIME } from "./quizData";
 import Game3DScene from "./Game3DScene";
 import QuizStart from "./QuizStart";
@@ -43,6 +44,7 @@ export default function CombatGame3D({ fullscreen = false }) {
     sceneRef.current?.reset();
     const startT = Date.now();
     const id = setInterval(() => {
+      if (locked.current) return; // pause countdown while aiming after a pick
       const left = QUESTION_TIME - (Date.now() - startT) / 1000;
       if (left <= 0) {
         clearInterval(id);
@@ -133,17 +135,34 @@ export default function CombatGame3D({ fullscreen = false }) {
         </div>
       )}
 
-      {/* center targeting reticle */}
-      {phase === "active" && (
+      {/* radar lock-on reticle — only shown after an answer is picked */}
+      {phase === "active" && picked !== null && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-          <div className={`relative h-24 w-24 transition-transform duration-300 ${feedback === "hit" ? "scale-110" : feedback === "miss" ? "rotate-45" : ""}`}>
-            <span className="absolute left-1/2 top-0 h-3 w-px -translate-x-1/2 bg-cyan-300/80" />
-            <span className="absolute left-1/2 bottom-0 h-3 w-px -translate-x-1/2 bg-cyan-300/80" />
-            <span className="absolute top-1/2 left-0 h-px w-3 -translate-y-1/2 bg-cyan-300/80" />
-            <span className="absolute top-1/2 right-0 h-px w-3 -translate-y-1/2 bg-cyan-300/80" />
-            <span className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/40" />
-            <span className={`absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${low ? "bg-red-400" : "bg-cyan-300"}`} />
-          </div>
+          <motion.div
+            initial={{ scale: 1.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="relative h-32 w-32"
+          >
+            <span
+              className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full opacity-50"
+              style={{
+                background: `conic-gradient(from 0deg, transparent 0deg, ${
+                  feedback === "miss" ? "rgba(239,68,68,0.65)" : "rgba(52,211,153,0.65)"
+                } 60deg, transparent 90deg)`,
+              }}
+            />
+            <span className={`absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border ${feedback === "miss" ? "border-red-500/40" : "border-emerald-400/40"}`} />
+            {[
+              "left-0 top-0 border-l-2 border-t-2",
+              "right-0 top-0 border-r-2 border-t-2",
+              "left-0 bottom-0 border-l-2 border-b-2",
+              "right-0 bottom-0 border-r-2 border-b-2",
+            ].map((c) => (
+              <span key={c} className={`absolute h-6 w-6 ${c} ${feedback === "miss" ? "border-red-500" : "border-emerald-400"}`} />
+            ))}
+            <span className={`absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${feedback === "miss" ? "bg-red-500" : "bg-emerald-400"}`} />
+          </motion.div>
         </div>
       )}
 
