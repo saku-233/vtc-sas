@@ -7,7 +7,7 @@ export function isSchoolEmail(email) {
 }
 
 // 白名单账号的固定密码，用户无需自行输入。
-export const FIXED_PASSWORD = "VtcSas@2026";
+export const FIXED_PASSWORD = "123456";
 
 export function schoolEmailHint() {
   return "仅允许 123@stu.vtc.edu.hk 或 123@vtc.edu.hk 登录。";
