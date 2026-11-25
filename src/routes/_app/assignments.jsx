@@ -4,8 +4,9 @@ import PageHeader from "@/components/PageHeader";
 import AssignmentStats from "@/components/assignments/AssignmentStats";
 import AssignmentFilters from "@/components/assignments/AssignmentFilters";
 import AssignmentItem from "@/components/assignments/AssignmentItem";
-import { listAssignments, listCourses } from "@/lib/server-fns";
+import { listAssignments, listCourses, listReminders } from "@/lib/server-fns";
 import { daysUntil, DONE_STATUSES } from "@/lib/assignments";
+import RemindersPanel from "@/components/reminders/RemindersPanel";
 
 export const Route = createFileRoute("/_app/assignments")({
   head: () => ({
@@ -15,14 +16,14 @@ export const Route = createFileRoute("/_app/assignments")({
     ],
   }),
   loader: async () => {
-    const [courses, assignments] = await Promise.all([listCourses(), listAssignments()]);
-    return { courses, assignments };
+    const [courses, assignments, reminders] = await Promise.all([listCourses(), listAssignments(), listReminders()]);
+    return { courses, assignments, reminders };
   },
   component: AssignmentsPage,
 });
 
 function AssignmentsPage() {
-  const { courses, assignments } = Route.useLoaderData();
+  const { courses, assignments, reminders } = Route.useLoaderData();
   const courseByCode = useMemo(() => Object.fromEntries(courses.map((c) => [c.code, c])), [courses]);
 
   const [items, setItems] = useState(assignments);
@@ -79,6 +80,8 @@ function AssignmentsPage() {
       />
 
       <AssignmentStats summary={summary} />
+
+      <RemindersPanel reminders={reminders} courses={courses} compact />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <AssignmentFilters active={filter} counts={counts} onChange={setFilter} />

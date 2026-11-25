@@ -6,6 +6,7 @@ const LINKS = [
   { to: "/assignments", label: "我的作业" },
   { to: "/attendance", label: "出席" },
   { to: "/chat", label: "Chatbot" },
+  { to: "/reminders", label: "提醒" },
 ];
 
 export default function AppNav() {

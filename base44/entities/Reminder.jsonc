@@ -1,0 +1,54 @@
+{
+  "name": "Reminder",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string"
+    },
+    "assignmentId": {
+      "type": "string"
+    },
+    "courseCode": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "due": {
+      "type": "string"
+    },
+    "leadTime": {
+      "type": "enum",
+      "enum": [
+        "1\u5929\u524d",
+        "2\u5c0f\u65f6\u524d"
+      ],
+      "enumColors": [
+        "yellow",
+        "red"
+      ]
+    }
+  },
+  "required": [
+    "key",
+    "title"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
