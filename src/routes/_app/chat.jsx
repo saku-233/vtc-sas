@@ -25,7 +25,7 @@ function ChatPage() {
       <PageHeader
         eyebrow="学习助手"
         title="Chatbot"
-        description="用对话查询作业、课程与出席。本地即时回答，无需登录。"
+        description="用对话查询作业、课程与出席。可切换 Gemini 云端 AI 或本地AI 两种引擎。"
       />
       <ChatWindow courses={courses} assignments={assignments} attendance={attendance} />
     </div>

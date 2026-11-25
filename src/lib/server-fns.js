@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 export const listCourses = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   const base44 = context.getBase44();
@@ -23,3 +24,33 @@ export const listReminders = createServerFn({ method: "GET" }).handler(async ({ 
   const { items } = await base44.entities.Reminder.list({ sort: "-created_date", limit: 100 });
   return items;
 });
+
+function buildContext(courses, assignments, attendance) {
+  const courseLines = courses.map((c) => `- ${c.name}（${c.code}）${c.scheduleDay ?? ""} ${c.startTime ?? ""}-${c.endTime ?? ""} 教师:${c.instructor ?? ""} 课室:${c.room ?? ""}`).join("\n");
+  const assignLines = assignments.map((a) => `- ${a.title}（${a.courseCode}）截止:${a.due ?? ""} 状态:${a.status ?? ""} 占比:${a.weight ?? ""}%`).join("\n");
+  const total = attendance.length;
+  const present = attendance.filter((a) => a.status === "出席").length;
+  const rate = total ? Math.round((present / total) * 100) : 0;
+  return [
+    "【课程】",
+    courseLines || "（暂无）",
+    "【作业】",
+    assignLines || "（暂无）",
+    `【出席】共 ${total} 节，出席 ${present} 节，出席率 ${rate}%`,
+  ].join("\n");
+}
+
+export const askGemini = createServerFn({ method: "POST" })
+  .validator(z.object({ question: z.string().min(1).max(500) }))
+  .handler(async ({ data, context }) => {
+    const base44 = context.getBase44();
+    const [courses, assignments, attendance] = await Promise.all([
+      base44.entities.Course.list({ sort: "code" }),
+      base44.entities.Assignment.list({ sort: "due" }),
+      base44.entities.Attendance.list({ sort: "-date" }),
+    ]);
+    const ctx = buildContext(courses.items, assignments.items, attendance.items);
+    const prompt = `你是 VTC-SAS 学生学习助手。根据下面的学生数据用简体中文回答问题，回答要简洁实用。如果数据中没有相关信息就如实说明。\n\n${ctx}\n\n学生问题：${data.question}`;
+    const res = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt, model: "gemini_3_8_flash" });
+    return typeof res === "string" ? res : res?.text ?? "抱歉，暂时无法生成回答。";
+  });
