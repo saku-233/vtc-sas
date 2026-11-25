@@ -4,7 +4,7 @@ import Game3DScene from "./Game3DScene";
 import QuizStart from "./QuizStart";
 import QuizResult from "./QuizResult";
 
-export default function CombatGame3D() {
+export default function CombatGame3D({ fullscreen = false }) {
   const [phase, setPhase] = useState("idle");
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -105,8 +105,16 @@ export default function CombatGame3D() {
 
   return (
     <section
-      className={`relative h-[74vh] min-h-[560px] w-full overflow-hidden rounded-2xl border bg-black transition-colors ${
-        feedback === "hit"
+      className={`relative w-full overflow-hidden bg-black transition-colors ${
+        fullscreen ? "h-full" : "h-[74vh] min-h-[560px] rounded-2xl border"
+      } ${
+        fullscreen
+          ? feedback === "hit"
+            ? "ring-2 ring-emerald-400/70"
+            : feedback === "miss"
+            ? "ring-2 ring-red-500/70"
+            : ""
+          : feedback === "hit"
           ? "border-emerald-400/70"
           : feedback === "miss"
           ? "border-red-500/70"
