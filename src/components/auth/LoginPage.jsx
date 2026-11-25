@@ -25,6 +25,9 @@ export function LoginPage() {
   const [mfaChallenge, setMfaChallenge] = useState(null);
   const [otpStep, setOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [role, setRole] = useState("student");
+
+  const targetPath = role === "teacher" ? "/teacher" : returnTo;
 
   async function submit(e) {
     e.preventDefault();
@@ -37,7 +40,7 @@ export function LoginPage() {
         return;
       }
       // A hard redirect: the app re-initializes with the new session.
-      window.location.href = returnTo;
+      window.location.href = targetPath;
     } catch (err) {
       if (isUnverifiedEmail(err)) {
         // The account exists but the email was never verified. Send a fresh code
@@ -63,7 +66,7 @@ export function LoginPage() {
     try {
       const result = await base44.auth.verifyOtp({ email, otpCode });
       if (result?.access_token) base44.auth.setToken(result.access_token);
-      window.location.href = returnTo;
+      window.location.href = targetPath;
     } catch (err) {
       setError(err.message || "验证码无效");
       setBusy(false);
@@ -119,6 +122,25 @@ export function LoginPage() {
 
       <AuthError>{error}</AuthError>
       <form onSubmit={submit} className="space-y-4">
+        <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-muted/40 p-1">
+          {[
+            { value: "student", label: "学生" },
+            { value: "teacher", label: "教师" },
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setRole(opt.value)}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                role === opt.value
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
         <div className="space-y-2">
           <Label htmlFor="login-email">电邮</Label>
           <div className="relative">
