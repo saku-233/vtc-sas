@@ -489,7 +489,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       lockReticle.userData = { target: t };
       lockReticle.visible = true;
       lockReticle.material.opacity = 0;
-      lockReticle.scale.set(1.4, 1.4, 1);
+      lockReticle.scale.set(0.25, 0.25, 1);
     }
 
     apiRef.current = { fireAt, reset, shake, lockOn };
@@ -529,8 +529,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         const tg = lockReticle.userData.target;
         if (tg && tg.userData.alive) lockReticle.position.copy(tg.position);
         lockReticle.material.opacity = Math.min(1, lockReticle.material.opacity + dt * 6);
-        const ns = lockReticle.scale.x + (2.4 - lockReticle.scale.x) * (1 - Math.pow(0.02, dt));
-        const pulse = Math.sin(t * 8) * 0.06;
+        const ns = lockReticle.scale.x + (0.5 - lockReticle.scale.x) * (1 - Math.pow(0.02, dt));
+        const pulse = Math.sin(t * 8) * 0.02;
         lockReticle.scale.set(ns + pulse, ns + pulse, 1);
       }
 
