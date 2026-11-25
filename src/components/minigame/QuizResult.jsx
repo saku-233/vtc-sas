@@ -1,9 +1,8 @@
 import { RotateCcw, Award } from "lucide-react";
 import { scoreToRank } from "./quizData";
 
-export default function QuizResult({ score, maxCombo, hits, total, onRestart }) {
+export default function QuizResult({ score, maxCombo, hits, destroyed, total, onRestart }) {
   const { rank, label } = scoreToRank(score);
-  const destroyed = total - hits;
 
   return (
     <div className="flex flex-col items-center gap-5 py-8 text-center">

@@ -12,6 +12,7 @@ export default function CombatQuiz() {
   const [maxCombo, setMaxCombo] = useState(0);
   const [hp, setHp] = useState(MAX_HP);
   const [hits, setHits] = useState(0);
+  const [destroyed, setDestroyed] = useState(0);
 
   function start() {
     setPhase("active");
@@ -21,6 +22,7 @@ export default function CombatQuiz() {
     setMaxCombo(0);
     setHp(MAX_HP);
     setHits(0);
+    setDestroyed(0);
   }
 
   function handleAnswer(picked, timeLeft) {
@@ -34,6 +36,7 @@ export default function CombatQuiz() {
       const gained = (100 + Math.round(Math.max(0, timeLeft) * 10)) * multiplier;
       setScore((s) => s + gained);
       setMaxCombo((m) => Math.max(m, nextCombo));
+      setDestroyed((d) => d + 1);
     } else {
       nextCombo = 0;
       nextHp = hp - 1;
@@ -75,6 +78,7 @@ export default function CombatQuiz() {
             score={score}
             maxCombo={maxCombo}
             hits={hits}
+            destroyed={destroyed}
             total={QUIZ_QUESTIONS.length}
             onRestart={start}
           />
