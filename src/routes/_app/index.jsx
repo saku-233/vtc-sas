@@ -9,6 +9,7 @@ import {
   Gamepad2,
   User,
   LogIn,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { Image } from "@/components/ui/image";
@@ -69,7 +70,7 @@ function WelcomePage() {
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/85">
             课程、作业、出席与学习助手集中在一个学生门户。登录后即可进入你的学习工作台。
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             {user ? (
               <Link
                 to={homePath}
@@ -87,6 +88,15 @@ function WelcomePage() {
                 登录
               </button>
             )}
+            <a
+              href="https://moodle.vtc.edu.hk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+            >
+              <GraduationCap className="h-4 w-4" />
+              VTC Moodle 登录
+            </a>
           </div>
         </div>
       </section>
