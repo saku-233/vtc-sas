@@ -66,6 +66,49 @@ export default function AppNav() {
   const initial = displayName.charAt(0).toUpperCase();
   const brandTo = user ? (isTeacher ? "/teacher" : "/student/dashboard") : "/";
   const activeLink = links.find((l) => isLinkActive(pathname, l)) ?? links[0];
+  // 平板优先露出的常用项，其余收进「更多」。
+  const PRIMARY_COUNT = 3;
+  const primaryLinks = links.slice(0, PRIMARY_COUNT);
+  const moreLinks = links.slice(PRIMARY_COUNT);
+
+  function renderInline(link) {
+    const Icon = link.icon;
+    return (
+      <Link
+        key={link.to}
+        to={link.to}
+        className="inline-flex shrink-0 items-center gap-[7px] rounded-full px-[11px] py-[10px] text-[13px] leading-[18px] whitespace-nowrap transition-[color,background-color,box-shadow,transform] duration-nav ease-nav active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px]"
+        activeOptions={{ exact: !!link.exact }}
+        activeProps={{ className: "bg-[#265e53] text-white shadow-[0_4px_10px_rgba(38,94,83,.2)] hover:bg-[#265e53] hover:text-white animate-[nav-settle_.55s_cubic-bezier(.2,.8,.2,1)_both]" }}
+        inactiveProps={{ className: "text-[#6b7280] hover:bg-[#f1f5f4] hover:text-[#1f2937]" }}
+      >
+        <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
+        {link.label}
+      </Link>
+    );
+  }
+
+  function renderItem(link) {
+    const Icon = link.icon;
+    const active = isLinkActive(pathname, link);
+    return (
+      <DropdownMenuItem
+        key={link.to}
+        asChild
+        onSelect={() => navigate({ to: link.to })}
+        className={`gap-2.5 rounded-lg px-3 py-2 text-[13px] outline-none transition-colors ${
+          active
+            ? "bg-[#e8f1ee] font-medium text-[#265e53]"
+            : "text-[#4b5563] focus:bg-[#f1f5f4] focus:text-[#1f2937]"
+        }`}
+      >
+        <button type="button" className="w-full">
+          <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+          {link.label}
+        </button>
+      </DropdownMenuItem>
+    );
+  }
 
   function exitViewAs() {
     clearViewAs();
@@ -89,26 +132,36 @@ export default function AppNav() {
 
         {links.length > 0 ? (
           <>
+          {/* xl+：全部内联 */}
           <nav className="hidden flex-1 items-center justify-center gap-1.5 xl:flex">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const active = isLinkActive(pathname, link);
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="inline-flex shrink-0 items-center gap-[7px] rounded-full px-[11px] py-[10px] text-[13px] leading-[18px] whitespace-nowrap transition-[color,background-color,box-shadow,transform] duration-nav ease-nav active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px]"
-                  activeOptions={{ exact: !!link.exact }}
-                  activeProps={{ className: "bg-[#265e53] text-white shadow-[0_4px_10px_rgba(38,94,83,.2)] hover:bg-[#265e53] hover:text-white animate-[nav-settle_.55s_cubic-bezier(.2,.8,.2,1)_both]" }}
-                  inactiveProps={{ className: "text-[#6b7280] hover:bg-[#f1f5f4] hover:text-[#1f2937]" }}
-                >
-                  <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
-                  {link.label}
-                </Link>
-              );
-            })}
+            {links.map(renderInline)}
           </nav>
-          <div className="flex flex-1 justify-center xl:hidden">
+          {/* md–xl：首页等常用项内联 + 更多下拉 */}
+          <div className="hidden flex-1 items-center justify-center gap-1.5 md:flex xl:hidden">
+            {primaryLinks.map(renderInline)}
+            {moreLinks.length > 0 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full px-[11px] py-[10px] text-[13px] leading-[18px] text-[#6b7280] transition-[color,background-color,transform] duration-nav ease-nav hover:bg-[#f1f5f4] hover:text-[#1f2937] active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px] [[data-state=open]_&]:bg-[#265e53] [[data-state=open]_&]:text-white"
+                  >
+                    <span>更多</span>
+                    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-nav ease-nav [[data-state=open]>&]:rotate-180" strokeWidth={1.8} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  sideOffset={8}
+                  className="min-w-[12rem] rounded-xl border-[#e5e7eb] p-1.5 shadow-[0_18px_44px_-24px_rgba(20,40,35,.45)]"
+                >
+                  {moreLinks.map(renderItem)}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+          </div>
+          {/* <md：整组下拉 */}
+          <div className="flex flex-1 justify-center md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -116,7 +169,7 @@ export default function AppNav() {
                   className="inline-flex items-center gap-2 rounded-full bg-[#265e53] px-4 py-2.5 text-[13px] font-medium text-white shadow-[0_4px_10px_rgba(38,94,83,.18)] transition-[background-color,transform] duration-nav ease-nav hover:bg-[#1f4a42] active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px]"
                 >
                   <Menu className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-                  <span className="max-w-[8.5rem] truncate sm:max-w-none">
+                  <span className="max-w-[8.5rem] truncate">
                     {activeLink?.label ?? "菜单"}
                   </span>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-nav ease-nav [[data-state=open]>&]:rotate-180" strokeWidth={1.8} />
@@ -127,27 +180,7 @@ export default function AppNav() {
                 sideOffset={8}
                 className="min-w-[12rem] rounded-xl border-[#e5e7eb] p-1.5 shadow-[0_18px_44px_-24px_rgba(20,40,35,.45)]"
               >
-                {links.map((link) => {
-                  const Icon = link.icon;
-                  const active = isLinkActive(pathname, link);
-                  return (
-                    <DropdownMenuItem
-                      key={link.to}
-                      asChild
-                      onSelect={() => navigate({ to: link.to })}
-                      className={`gap-2.5 rounded-lg px-3 py-2 text-[13px] outline-none transition-colors ${
-                        active
-                          ? "bg-[#e8f1ee] font-medium text-[#265e53]"
-                          : "text-[#4b5563] focus:bg-[#f1f5f4] focus:text-[#1f2937]"
-                      }`}
-                    >
-                      <button type="button" className="w-full">
-                        <Icon className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-                        {link.label}
-                      </button>
-                    </DropdownMenuItem>
-                  );
-                })}
+                {links.map(renderItem)}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
