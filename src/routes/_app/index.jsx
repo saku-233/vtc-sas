@@ -8,7 +8,7 @@ import {
   Bell,
   Gamepad2,
   User,
-  GraduationCap,
+  LogIn,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { Image } from "@/components/ui/image";
@@ -39,7 +39,7 @@ const HERO_IMAGE =
   "https://media.base44.com/images/public/6afe60c183d2b0cd3452a1be/2b869fb455fcdf55dfced63bd0561461_generated_image.png";
 
 function WelcomePage() {
-  const { user } = useAuth();
+  const { user, navigateToLogin } = useAuth();
   const isTeacher = user?.role === "admin";
 
   return (
@@ -69,15 +69,14 @@ function WelcomePage() {
             课程、作业、出席与学习助手集中在一个学生门户。登录后即可进入你的学习工作台。
           </p>
           <div className="mt-6">
-            <a
-              href="https://moodle.vtc.edu.hk/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => navigateToLogin()}
               className="group inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/5 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:scale-[1.03] hover:border-white/80 hover:bg-white/20 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]"
             >
-              <GraduationCap className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-px" />
-              <span className="transition-transform duration-300 group-hover:translate-x-0.5">Login to VTC Moodle</span>
-            </a>
+              <LogIn className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-px" />
+              <span className="transition-transform duration-300 group-hover:translate-x-0.5">登录</span>
+            </button>
           </div>
         </div>
       </section>
