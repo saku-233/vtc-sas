@@ -648,15 +648,26 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     function enemyAttack(i) {
       const t = targets[i];
       if (!t || !t.userData.alive) return;
+      const start = t.position.clone();
       const behind = new THREE.Vector3(jet.position.x * 0.4, 1.4, 15);
+      const base = new THREE.Vector3(TARGET_X[i], TARGET_Y[i], TARGET_Z);
+      // C-shape arc control points: swoop up and out to one side, like a real fighter turn
+      const diveCtrl = start.clone().lerp(behind, 0.5);
+      diveCtrl.y += 2.8;
+      diveCtrl.x += 3.5;
+      const returnCtrl = behind.clone().lerp(base, 0.5);
+      returnCtrl.y += 2.4;
+      returnCtrl.x += 3.5;
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
-        diveDur: 0.32,
-        returnDur: 0.34,
-        startPos: t.position.clone(),
-        behindPos: behind.clone(),
-        base: new THREE.Vector3(TARGET_X[i], TARGET_Y[i], TARGET_Z),
+        diveDur: 0.34,
+        returnDur: 0.36,
+        startPos: start,
+        behindPos: behind,
+        base,
+        diveCtrl,
+        returnCtrl,
       };
       // Cinematic rear close-up on the attacking enemy
       cameraCue = {
@@ -842,18 +853,32 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           if (atk.phase === "dive") {
             const k = Math.min(1, a / atk.diveDur);
             const e = 1 - Math.pow(1 - k, 2);
-            tg.position.lerpVectors(atk.startPos, atk.behindPos, e);
+            const u = 1 - e;
+            const s = atk.startPos, c = atk.diveCtrl, b = atk.behindPos;
+            tg.position.set(
+              u * u * s.x + 2 * u * e * c.x + e * e * b.x,
+              u * u * s.y + 2 * u * e * c.y + e * e * b.y,
+              u * u * s.z + 2 * u * e * c.z + e * e * b.z
+            );
+            tg.rotation.z = -0.4 * Math.sin(Math.min(1, k) * Math.PI); // bank into the turn, level at ends
             if (k >= 1) { atk.phase = "fire"; atk.t0 = t; enemyFire(tg.position); }
           } else if (atk.phase === "fire") {
             tg.position.copy(atk.behindPos);
+            tg.rotation.z = -0.2;
             if (a > 0.12) { atk.phase = "return"; atk.t0 = t; atk.startPos = tg.position.clone(); }
           } else if (atk.phase === "return") {
             const k = Math.min(1, a / atk.returnDur);
             const e = 1 - Math.pow(1 - k, 2);
-            tg.position.lerpVectors(atk.startPos, atk.base, e);
+            const u = 1 - e;
+            const s = atk.startPos, c = atk.returnCtrl, b = atk.base;
+            tg.position.set(
+              u * u * s.x + 2 * u * e * c.x + e * e * b.x,
+              u * u * s.y + 2 * u * e * c.y + e * e * b.y,
+              u * u * s.z + 2 * u * e * c.z + e * e * b.z
+            );
+            tg.rotation.z = -0.3 * Math.sin(Math.min(1, k) * Math.PI);
             if (k >= 1) { tg.position.copy(atk.base); atk.phase = null; }
           }
-          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.12;
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays 看前 (-z)
         } else {
           tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
