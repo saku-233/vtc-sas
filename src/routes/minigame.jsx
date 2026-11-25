@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import CombatGame3D from "@/components/minigame/CombatGame3D";
+import { AuthGateError, requireSignedIn } from "@/components/auth/AuthGate";
 
 export const Route = createFileRoute("/minigame")({
   ssr: false,
+  beforeLoad: requireSignedIn,
+  errorComponent: AuthGateError,
   head: () => ({
     meta: [
       { title: "课程巩固 · 3D 空战 · VTC-SAS" },

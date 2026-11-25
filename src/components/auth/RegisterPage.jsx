@@ -33,7 +33,7 @@ export function RegisterPage() {
     e.preventDefault();
     setError("");
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError("两次输入的密码不一致");
       return;
     }
     setBusy(true);
@@ -41,7 +41,7 @@ export function RegisterPage() {
       await base44.auth.register({ email, password });
       setStep("otp");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message || "注册失败");
     } finally {
       setBusy(false);
     }
@@ -63,7 +63,7 @@ export function RegisterPage() {
       // Verified server-side but the answer never arrived: the code is spent and
       // there is no token, so the only way forward is a normal sign-in.
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "Invalid verification code");
+      else setError(err.message || "验证码无效");
       setBusy(false);
     }
   }
@@ -72,10 +72,10 @@ export function RegisterPage() {
     setError("");
     try {
       await base44.auth.resendOtp(email);
-      toast("Code sent", { description: "Check your email for the new code." });
+      toast("验证码已发送", { description: "请查收邮件中的最新验证码。" });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "Failed to resend code");
+      else setError(err.message || "验证码发送失败");
     }
   }
 
@@ -84,12 +84,12 @@ export function RegisterPage() {
 
   if (step === "already_verified") {
     return (
-      <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+      <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
         <p className="mb-4 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{email}</span> is already verified. Sign in to continue.
+          <span className="font-medium text-foreground">{email}</span> 已通过验证，请直接登录。
         </p>
         <AuthLink to="/login" returnTo={returnTo} className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          Sign in
+          登录
         </AuthLink>
       </AuthLayout>
     );
@@ -97,10 +97,10 @@ export function RegisterPage() {
 
   if (step === "otp") {
     return (
-      <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+      <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
         <form onSubmit={verify}>
           <p className="mb-4 text-sm text-muted-foreground">
-            We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>.
+            我们已向 <span className="font-medium text-foreground">{email}</span> 发送了 6 位验证码。
           </p>
           <AuthError>{error}</AuthError>
           <div className="mb-6 flex justify-center">
@@ -112,13 +112,13 @@ export function RegisterPage() {
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <SubmitButton busy={busy} busyLabel="Verifying..." disabled={busy || otpCode.length < 6}>
-            Verify
+          <SubmitButton busy={busy} busyLabel="验证中..." disabled={busy || otpCode.length < 6}>
+            验证
           </SubmitButton>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Didn't receive the code?{" "}
+            没收到验证码？{" "}
             <button type="button" onClick={resend} className="font-medium text-primary hover:underline">
-              Resend
+              重新发送
             </button>
           </p>
         </form>
@@ -127,40 +127,40 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
+    <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
       <GoogleButton returnTo={returnTo} onError={setError} />
       <OrDivider />
       <AuthError>{error}</AuthError>
       <form onSubmit={register} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="register-email">Email</Label>
+          <Label htmlFor="register-email">电邮</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="register-password">Password</Label>
+          <Label htmlFor="register-password">密码</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-password" type="password" autoComplete="new-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="register-confirm">Confirm password</Label>
+          <Label htmlFor="register-confirm">确认密码</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-confirm" type="password" autoComplete="new-password" placeholder="••••••••" value={confirm} onChange={(e) => setConfirm(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
-        <SubmitButton busy={busy} busyLabel="Creating account...">
-          Create account
+        <SubmitButton busy={busy} busyLabel="创建中...">
+          创建账户
         </SubmitButton>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        已有账户？{" "}
         <AuthLink to="/login" returnTo={returnTo}>
-          Log in
+          登录
         </AuthLink>
       </p>
     </AuthLayout>

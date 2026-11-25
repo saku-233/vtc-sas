@@ -40,7 +40,7 @@ export function GoogleButton({ returnTo, onError }) {
       onClick={() => signInWithProvider("google", returnTo).catch((err) => onError(err.message || "Unable to sign in with Google"))}
     >
       <GoogleIcon className="mr-2 h-5 w-5" />
-      Continue with Google
+      使用 Google 登录
     </Button>
   );
 }
@@ -52,7 +52,7 @@ export function OrDivider() {
         <div className="w-full border-t border-border" />
       </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-card px-3 text-muted-foreground">or</span>
+        <span className="bg-card px-3 text-muted-foreground">或</span>
       </div>
     </div>
   );
