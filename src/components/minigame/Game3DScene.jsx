@@ -757,8 +757,8 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       t.userData.attack = {
         phase: "dive",
         t0: clock.elapsedTime,
-        diveDur: 0.42,
-        returnDur: 0.42,
+        diveDur: 1.2,
+        returnDur: 1.2,
         startPos: start,
         behindPos: behind,
         base,
@@ -768,7 +768,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       // Cinematic rear close-up on the attacking enemy
       cameraCue = {
         t0: clock.elapsedTime,
-        dur: 1.05,
+        dur: 3,
         pos: new THREE.Vector3(behind.x, behind.y + 0.5, behind.z + 2.6),
         look: behind.clone(),
       };
@@ -963,7 +963,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
           } else if (atk.phase === "fire") {
             tg.position.copy(atk.behindPos);
             tg.rotation.z = -0.2;
-            if (a > 0.12) { atk.phase = "return"; atk.t0 = t; atk.startPos = tg.position.clone(); }
+            if (a > 0.6) { atk.phase = "return"; atk.t0 = t; atk.startPos = tg.position.clone(); }
           } else if (atk.phase === "return") {
             const k = Math.min(1, a / atk.returnDur);
             const e = k * k * (3 - 2 * k); // smoothstep — smoother in/out

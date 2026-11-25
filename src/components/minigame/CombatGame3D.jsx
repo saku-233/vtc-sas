@@ -121,7 +121,7 @@ export default function CombatGame3D({ fullscreen = false }) {
     setTimeout(() => {
       if (end) setPhase("over");
       else setQIndex((i) => i + 1);
-    }, 1100);
+    }, 3200);
   }
 
   function choose(i) {
