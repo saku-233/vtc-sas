@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "@/components/PageHeader";
 import CourseCard from "@/components/courses/CourseCard";
-import CombatQuiz from "@/components/minigame/CombatQuiz";
 import { listCourses } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 
@@ -31,13 +30,6 @@ function CoursesPage() {
           ))}
         </div>
       )}
-      <div className="space-y-3 pt-2">
-        <div>
-          <h2 className="font-heading text-xl text-foreground">Course practice: knowledge air combat</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Reinforce this semester's content with subject quizzes — answer right to shoot down the enemy.</p>
-        </div>
-        <CombatQuiz />
-      </div>
     </div>
   );
 }
