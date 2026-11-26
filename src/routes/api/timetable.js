@@ -1,27 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 const WEEKDAY_CODE = {
-  星期一: "MO",
-  星期二: "TU",
-  星期三: "WE",
-  星期四: "TH",
-  星期五: "FR",
-  星期六: "SA",
-  星期日: "SU",
+  Monday: "MO",
+  Tuesday: "TU",
+  Wednesday: "WE",
+  Thursday: "TH",
+  Friday: "FR",
+  Saturday: "SA",
+  Sunday: "SU",
 };
 
-// 学期首次上课日期（2026 年 9 月第一周，按星期映射到 ISO 日期）。
+// First class date of the semester (first week of September 2026, mapped by weekday to an ISO date).
 const FIRST_DATE = {
-  星期一: "20260907",
-  星期二: "20260901",
-  星期三: "20260902",
-  星期四: "20260903",
-  星期五: "20260904",
-  星期六: "20260905",
-  星期日: "20260906",
+  Monday: "20260907",
+  Tuesday: "20260901",
+  Wednesday: "20260902",
+  Thursday: "20260903",
+  Friday: "20260904",
+  Saturday: "20260905",
+  Sunday: "20260906",
 };
 
-// 香港时间（UTC+8）转 UTC 的 HHMM，用整数取模避免负数。
+// Hong Kong time (UTC+8) to UTC HHMM, using integer modulo to avoid negatives.
 function hkToUtcHHMM(hk) {
   const [h, m] = hk.split(":").map(Number);
   const u = ((h - 8) % 24 + 24) % 24;
@@ -42,9 +42,9 @@ export const Route = createFileRoute("/api/timetable")({
         const lines = [
           "BEGIN:VCALENDAR",
           "VERSION:2.0",
-          "PRODID:-//VTC-SAS//Timetable//ZH",
+          "PRODID:-//VTC-SAS//Timetable//EN",
           "CALSCALE:GREGORIAN",
-          "X-WR-CALNAME:VTC 课程时间表",
+          "X-WR-CALNAME:VTC Course Timetable",
           "X-WR-TIMEZONE:Asia/Hong_Kong",
         ];
 
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/timetable")({
             "BEGIN:VEVENT",
             `UID:course-${c.code}@vtc-sas`,
             `SUMMARY:${escapeIcs(`${c.name} (${c.code})`)}`,
-            `DESCRIPTION:${escapeIcs(`老师: ${c.instructor ?? ""}\n地点: ${c.room ?? ""}`)}`,
+            `DESCRIPTION:${escapeIcs(`Instructor: ${c.instructor ?? ""}\nRoom: ${c.room ?? ""}`)}`,
             `LOCATION:${escapeIcs(c.room ?? "")}`,
             `DTSTART:${date}T${hkToUtcHHMM(c.startTime)}00Z`,
             `DTEND:${date}T${hkToUtcHHMM(c.endTime)}00Z`,
@@ -66,7 +66,7 @@ export const Route = createFileRoute("/api/timetable")({
             "BEGIN:VALARM",
             "TRIGGER:-PT15M",
             "ACTION:DISPLAY",
-            "DESCRIPTION:15 分钟后上课",
+            "DESCRIPTION:Class starts in 15 minutes",
             "END:VALARM",
             "END:VEVENT"
           );

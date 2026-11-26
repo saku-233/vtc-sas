@@ -29,18 +29,18 @@ export default function ClassDetailsDialog({ course, onClose }) {
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: course.color ?? "#94A3B8" }} />
                 {course.name}
               </DialogTitle>
-              <DialogDescription>{course.code} · 班级详情</DialogDescription>
+              <DialogDescription>{course.code} · Class details</DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-3 py-1 text-sm">
-              <Detail icon={Users} label="学生人数" value={`${course.students ?? 0} 人`} />
-              <Detail icon={User} label="授课老师" value={course.instructor || "—"} />
+              <Detail icon={Users} label="Students" value={`${course.students ?? 0}`} />
+              <Detail icon={User} label="Instructor" value={course.instructor || "—"} />
               <Detail
                 icon={Clock}
-                label="上课时间"
+                label="Class time"
                 value={`${course.scheduleDay ?? ""} ${course.startTime ?? ""}–${course.endTime ?? ""}`}
               />
-              <Detail icon={MapPin} label="教室" value={course.room || "—"} />
-              <Detail icon={Award} label="学分" value={course.credits != null ? `${course.credits}` : "—"} />
+              <Detail icon={MapPin} label="Room" value={course.room || "—"} />
+              <Detail icon={Award} label="Credits" value={course.credits != null ? `${course.credits}` : "—"} />
             </div>
           </>
         ) : null}

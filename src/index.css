@@ -29,9 +29,9 @@
     --chart-4: 330 32% 52%;
     --chart-5: 262 30% 52%;
     --radius: 0.875rem;
-    --font-heading: "Noto Serif SC", ui-serif, Georgia, serif;
-    --font-body: "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Noto Serif SC", ui-serif, Georgia, serif;
+    --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --sidebar-background: 40 28% 97%;
     --sidebar-foreground: 200 12% 28%;
@@ -79,7 +79,7 @@
   }
 }
 
-/* 教师蓝色主题：覆盖主色调为蓝色系 */
+/* Teacher blue theme: overrides the primary palette with blue tones */
 .theme-teacher {
   --primary: 212 76% 46%;
   --primary-foreground: 0 0% 100%;

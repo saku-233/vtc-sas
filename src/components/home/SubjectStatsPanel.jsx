@@ -1,6 +1,6 @@
 import { BarChart3 } from "lucide-react";
 
-const SUBMITTED = new Set(["已提交", "已评分"]);
+const SUBMITTED = new Set(["Submitted", "Graded"]);
 
 function parseGrade(g) {
   if (!g) return null;
@@ -36,28 +36,28 @@ export default function SubjectStatsPanel({ courses, assignments }) {
     <section className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7">
       <div className="flex items-center gap-2">
         <BarChart3 className="h-4 w-4 text-primary" />
-        <h3 className="font-heading text-lg text-foreground">科目学习进度</h3>
+        <h3 className="font-heading text-lg text-foreground">Subject progress</h3>
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">按科目统计作业提交率与平均成绩，掌握学习节奏。</p>
+      <p className="mt-1 text-sm text-muted-foreground">Submission rate and average grade per subject, so you can track your pace.</p>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-secondary/60 px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">总提交率</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Overall submission rate</p>
           <p className="mt-1 font-heading text-2xl text-foreground">
             {overallRate}<span className="text-base text-muted-foreground">%</span>
           </p>
         </div>
         <div className="rounded-xl bg-secondary/60 px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">平均成绩</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">Average grade</p>
           <p className="mt-1 font-heading text-2xl text-foreground">
             {overallAvg !== null ? overallAvg : "—"}
-            {overallAvg !== null && <span className="text-base text-muted-foreground">分</span>}
+            {overallAvg !== null && <span className="text-base text-muted-foreground"> pts</span>}
           </p>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">暂无作业数据可分析。</p>
+        <p className="mt-6 text-sm text-muted-foreground">No assignment data to analyze yet.</p>
       ) : (
         <ul className="mt-5 space-y-4">
           {rows.map((r) => (
@@ -65,7 +65,7 @@ export default function SubjectStatsPanel({ courses, assignments }) {
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-foreground">{r.name}</span>
                 <span className="text-muted-foreground">
-                  {r.submitted}/{r.total} 份 · 平均 {r.avg !== null ? `${r.avg} 分` : "—"}
+                  {r.submitted}/{r.total} submitted · avg {r.avg !== null ? `${r.avg} pts` : "—"}
                 </span>
               </div>
               <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">

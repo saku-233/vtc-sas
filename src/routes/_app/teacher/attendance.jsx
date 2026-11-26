@@ -10,7 +10,7 @@ import { teacherOnly } from "@/lib/routeGuards";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_app/teacher/attendance")({
-  head: () => ({ meta: [{ title: "出席总览 · VTC-SAS" }, { name: "description", content: "各课程的学生出席记录与整体出席率。" }] }),
+  head: () => ({ meta: [{ title: "Attendance Overview · VTC-SAS" }, { name: "description", content: "Student attendance records and overall attendance rate per course." }] }),
   beforeLoad: teacherOnly,
   loader: async () => {
     const [courses, attendance] = await Promise.all([listCourses(), listAttendance()]);
@@ -36,16 +36,16 @@ function TeacherAttendancePage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2026 秋季学期"
-        title="学生出席总览"
-        description="按学生查看每节课的出席状况，谁有上学、谁缺席一目了然。"
+        eyebrow="Fall 2026 Semester"
+        title="Student Attendance Overview"
+        description="See every student's per-class attendance at a glance — who showed up and who was absent."
       >
         <div className="relative w-full sm:w-[280px]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="按学号或姓名搜索"
+            placeholder="Search by student ID or name"
             className="pl-9"
           />
         </div>

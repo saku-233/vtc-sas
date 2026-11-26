@@ -12,8 +12,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VTC-SAS · 智慧学业排程" },
-      { name: "description", content: "课程、作业、出席与学习助手集中在一个学生门户。" },
+      { title: "VTC-SAS · Smart Academic Scheduler" },
+      { name: "description", content: "Courses, assignments, attendance and a study assistant — all in one student portal." },
     ],
     // No icon link: the platform adds the app's logo when serving.
     links: [
@@ -21,7 +21,7 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
       },
       { rel: "stylesheet", href: appCss },
     ],

@@ -26,7 +26,7 @@ const AssignmentInput = z.object({
   type: z.string().max(40).optional(),
   weight: z.number().min(0).max(100).optional(),
   due: z.string().optional(),
-  status: z.enum(["未开始", "进行中", "已提交", "已评分"]).optional(),
+  status: z.enum(["Not Started", "In Progress", "Submitted", "Graded"]).optional(),
   note: z.string().max(500).optional(),
 });
 
@@ -75,17 +75,17 @@ export const listReminders = createServerFn({ method: "GET" }).handler(async ({ 
 });
 
 function buildContext(courses, assignments, attendance) {
-  const courseLines = courses.map((c) => `- ${c.name}（${c.code}）${c.scheduleDay ?? ""} ${c.startTime ?? ""}-${c.endTime ?? ""} 教师:${c.instructor ?? ""} 课室:${c.room ?? ""}`).join("\n");
-  const assignLines = assignments.map((a) => `- ${a.title}（${a.courseCode}）截止:${a.due ?? ""} 状态:${a.status ?? ""} 占比:${a.weight ?? ""}%`).join("\n");
+  const courseLines = courses.map((c) => `- ${c.name} (${c.code}) ${c.scheduleDay ?? ""} ${c.startTime ?? ""}-${c.endTime ?? ""} Instructor:${c.instructor ?? ""} Room:${c.room ?? ""}`).join("\n");
+  const assignLines = assignments.map((a) => `- ${a.title} (${a.courseCode}) Due:${a.due ?? ""} Status:${a.status ?? ""} Weight:${a.weight ?? ""}%`).join("\n");
   const total = attendance.length;
-  const present = attendance.filter((a) => a.status === "出席").length;
+  const present = attendance.filter((a) => a.status === "Present").length;
   const rate = total ? Math.round((present / total) * 100) : 0;
   return [
-    "【课程】",
-    courseLines || "（暂无）",
-    "【作业】",
-    assignLines || "（暂无）",
-    `【出席】共 ${total} 节，出席 ${present} 节，出席率 ${rate}%`,
+    "[Courses]",
+    courseLines || "(none)",
+    "[Assignments]",
+    assignLines || "(none)",
+    `[Attendance] ${total} sessions, ${present} present, attendance rate ${rate}%`,
   ].join("\n");
 }
 
@@ -102,7 +102,7 @@ export const generateQuizQuestions = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const base44 = context.getBase44();
     const prompt =
-      "你是 VTC IT114115《云端运算及安全基础》课程出题官。请围绕该课程核心内容（云计算服务模式 IaaS/PaaS/SaaS、部署模型、虚拟化、容器、多租户、弹性、按需自助、广域访问、可度量服务、数据安全与备份等）生成 10 道中文单选题，每题 4 个选项，并标注正确答案索引(0-3)。题目需准确、贴近课程、避免重复，难度适中。";
+      "You are the examiner for VTC IT114115 \"Cloud Computing and Security Fundamentals\". Generate 10 single-choice questions in English covering the course's core content (IaaS/PaaS/SaaS service models, deployment models, virtualization, containers, multi-tenancy, elasticity, on-demand self-service, broad network access, measured service, data security and backup, etc.). Each question has 4 options; mark the correct answer index (0-3). Questions should be accurate, course-relevant, non-repetitive, and moderately difficult.";
     const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       model: "gemini_3_8_flash",
@@ -142,7 +142,7 @@ export const askGemini = createServerFn({ method: "POST" })
       base44.entities.Attendance.list({ sort: "-date" }),
     ]);
     const ctx = buildContext(courses.items, assignments.items, attendance.items);
-    const prompt = `你是 VTC-SAS 学生学习助手。根据下面的学生数据用简体中文回答问题，回答要简洁实用。如果数据中没有相关信息就如实说明。\n\n${ctx}\n\n学生问题：${data.question}`;
+    const prompt = `You are the VTC-SAS student study assistant. Answer the student's question concisely and usefully in English, based on the student data below. If the data has no relevant information, say so honestly.\n\n${ctx}\n\nStudent question: ${data.question}`;
     const res = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt, model: "gemini_3_8_flash" });
-    return typeof res === "string" ? res : res?.text ?? "抱歉，暂时无法生成回答。";
+    return typeof res === "string" ? res : res?.text ?? "Sorry, I couldn't generate an answer right now.";
   });

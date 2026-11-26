@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { AttendanceBadge } from "@/components/attendance/AttendanceSummary";
 
 export default function AttendanceByCourse({ courses, attendance }) {
@@ -22,16 +22,16 @@ export default function AttendanceByCourse({ courses, attendance }) {
               </div>
             </div>
             {rows.length === 0 ? (
-              <p className="mt-4 text-sm text-muted-foreground">暂无出席记录。</p>
+              <p className="mt-4 text-sm text-muted-foreground">No attendance records yet.</p>
             ) : (
               <ul className="mt-4 divide-y divide-border/70">
                 {rows.map((row) => (
                   <li key={row.id} className="flex items-center justify-between py-2.5">
                     <div className="flex min-w-0 items-center gap-2 text-sm text-foreground/85">
-                      <span className="shrink-0">{format(parseISO(row.date), "M月d日 EEEE", { locale: zhCN })}</span>
+                      <span className="shrink-0">{format(parseISO(row.date), "MMM d, EEEE", { locale: enUS })}</span>
                       {row.student ? (
                         <span className="truncate text-muted-foreground">
-                          · {row.student}{row.studentId ? `（${row.studentId}）` : ""}
+                          · {row.student}{row.studentId ? ` (${row.studentId})` : ""}
                         </span>
                       ) : null}
                     </div>

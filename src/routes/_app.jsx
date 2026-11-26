@@ -5,7 +5,7 @@ import { authQuery } from "@/lib/AuthContext";
 export const Route = createFileRoute("/_app")({
   ssr: false,
   beforeLoad: async ({ context }) => {
-    // 解析当前访客身份并注入路由 context，子路由可用 context.user 做角色分流。
+    // Resolve the current visitor and inject route context; child routes can use context.user for role-based routing.
     const { user } = await context.queryClient.ensureQueryData(authQuery);
     return { user };
   },
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_app")({
 function AppLayout() {
   const { user } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // 主题按当前页面区域决定，与学生/教师导航保持一致。
+  // Theme follows the current page area, matching the student/teacher navigation.
   const isStudentArea = pathname.startsWith("/student");
   const isTeacherArea = pathname.startsWith("/teacher");
   const isTeacher = isTeacherArea || (!isStudentArea && user?.role === "admin");

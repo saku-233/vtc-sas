@@ -6,7 +6,7 @@ import CourseTable from "@/components/teacher/CourseTable";
 import { teacherOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/teacher/profile")({
-  head: () => ({ meta: [{ title: "教师档案 · VTC-SAS" }] }),
+  head: () => ({ meta: [{ title: "Teacher Profile · VTC-SAS" }] }),
   beforeLoad: teacherOnly,
   loader: async () => {
     const [courses, assignments, attendance] = await Promise.all([
@@ -37,27 +37,27 @@ function TeacherProfilePage() {
 
   const totalCourses = courses.length;
   const totalAssignments = assignments.length;
-  const presentCount = attendance.filter((a) => a.status === "出席").length;
+  const presentCount = attendance.filter((a) => a.status === "Present").length;
   const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
   const enrolledStudents = courses.reduce((sum, c) => sum + (c.students ?? 0), 0);
 
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Teacher Account Backend"
-        title="教师档案"
-        description="集中查看授课科目、已布置作业与累计出席统计。"
+        eyebrow="Teacher Account"
+        title="Teacher Profile"
+        description="Your taught subjects, posted assignments and cumulative attendance in one place."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={BookOpen} label="开设课程" value={totalCourses} sub="本学期开设科目" />
-        <StatCard icon={ClipboardList} label="作业总数" value={totalAssignments} sub="已布置的全部作业" accent="text-amber-600" />
-        <StatCard icon={CalendarCheck} label="总体出席率" value={`${attendanceRate}%`} sub={`${presentCount} / ${attendance.length} 节`} accent="text-emerald-600" />
-        <StatCard icon={Users} label="选课学生" value={enrolledStudents || "—"} sub="累计选课人次" accent="text-blue-600" />
+        <StatCard icon={BookOpen} label="Courses" value={totalCourses} sub="Subjects taught this semester" />
+        <StatCard icon={ClipboardList} label="Assignments" value={totalAssignments} sub="All posted assignments" accent="text-amber-600" />
+        <StatCard icon={CalendarCheck} label="Attendance rate" value={`${attendanceRate}%`} sub={`${presentCount} / ${attendance.length} sessions`} accent="text-emerald-600" />
+        <StatCard icon={Users} label="Enrolled students" value={enrolledStudents || "—"} sub="Cumulative enrollments" accent="text-blue-600" />
       </div>
 
       <div className="space-y-3">
-        <h2 className="font-heading text-lg text-foreground">课程进度概览</h2>
+        <h2 className="font-heading text-lg text-foreground">Course progress overview</h2>
         <CourseTable courses={courses} assignments={assignments} />
       </div>
     </div>

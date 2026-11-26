@@ -7,8 +7,8 @@ import { studentOnly } from "@/lib/routeGuards";
 export const Route = createFileRoute("/_app/student/reminders")({
   head: () => ({
     meta: [
-      { title: "作业提醒 · VTC-SAS" },
-      { name: "description", content: "作业截止前的自动提醒记录。" },
+      { title: "Assignment Reminders · VTC-SAS" },
+      { name: "description", content: "Automatic reminders before assignment deadlines." },
     ],
   }),
   loader: async () => {
@@ -24,9 +24,9 @@ function RemindersPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="自动提醒"
-        title="作业提醒"
-        description="系统在截止前一天及两小时自动生成提醒，帮你把握最终提交期限。"
+        eyebrow="Automatic reminders"
+        title="Assignment Reminders"
+        description="The system auto-creates reminders one day and two hours before each deadline, so you never miss the final submission."
       />
       <RemindersPanel reminders={reminders} courses={courses} />
     </div>

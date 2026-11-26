@@ -3,15 +3,15 @@ import AttendanceSummary from "@/components/attendance/AttendanceSummary";
 import AttendanceByCourse from "@/components/attendance/AttendanceByCourse";
 
 const STATUS_COLOR = {
-  出席: "#2f9e6f",
-  迟到: "#d99a3c",
-  请假: "#7c6fb0",
-  缺席: "#d6534a",
+  Present: "#2f9e6f",
+  Late: "#d99a3c",
+  Excused: "#7c6fb0",
+  Absent: "#d6534a",
 };
 
 export default function AttendanceOverview({ courses, attendance }) {
   const total = attendance.length;
-  const counts = { 出席: 0, 迟到: 0, 请假: 0, 缺席: 0 };
+  const counts = { Present: 0, Late: 0, Excused: 0, Absent: 0 };
   attendance.forEach((r) => {
     counts[r.status] = (counts[r.status] ?? 0) + 1;
   });
@@ -25,7 +25,7 @@ export default function AttendanceOverview({ courses, attendance }) {
   const perCourse = courses
     .map((c) => {
       const rows = byCode[c.code] ?? [];
-      const present = rows.filter((r) => r.status === "出席").length;
+      const present = rows.filter((r) => r.status === "Present").length;
       const rate = rows.length ? Math.round((present / rows.length) * 100) : 0;
       return { name: c.name, code: c.code, rate, total: rows.length };
     })
@@ -37,8 +37,8 @@ export default function AttendanceOverview({ courses, attendance }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-2xl border border-border/80 bg-card p-5">
-          <h3 className="font-heading text-base text-foreground">出席状态分布</h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">本学期累计 {total} 节课</p>
+          <h3 className="font-heading text-base text-foreground">Attendance breakdown</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">{total} sessions this semester</p>
           <div className="mt-4 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
@@ -60,10 +60,10 @@ export default function AttendanceOverview({ courses, attendance }) {
         </section>
 
         <section className="rounded-2xl border border-border/80 bg-card p-5">
-          <h3 className="font-heading text-base text-foreground">各科出席率</h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">按课程统计的出席百分比</p>
+          <h3 className="font-heading text-base text-foreground">Attendance rate by course</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">Attendance percentage per course</p>
           {perCourse.length === 0 ? (
-            <p className="mt-6 text-sm text-muted-foreground">暂无出席数据。</p>
+            <p className="mt-6 text-sm text-muted-foreground">No attendance data yet.</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {perCourse.map((r) => (
@@ -83,7 +83,7 @@ export default function AttendanceOverview({ courses, attendance }) {
       </div>
 
       <section>
-        <h3 className="mb-3 font-heading text-base text-foreground">按课程查看明细</h3>
+        <h3 className="mb-3 font-heading text-base text-foreground">Details by course</h3>
         <AttendanceByCourse courses={courses} attendance={attendance} />
       </section>
     </div>

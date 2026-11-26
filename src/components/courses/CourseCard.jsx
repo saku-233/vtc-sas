@@ -8,23 +8,23 @@ export default function CourseCard({ course }) {
             {course.code}
           </span>
           <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] text-secondary-foreground">
-            {course.credits} 学分
+            {course.credits} credits
           </span>
         </div>
         <h3 className="mt-1.5 font-heading text-lg leading-snug text-foreground">{course.name}</h3>
         <dl className="mt-3 space-y-1.5 text-sm">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">老师</dt>
+            <dt className="text-muted-foreground">Instructor</dt>
             <dd className="text-foreground/85">{course.instructor}</dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">时间</dt>
+            <dt className="text-muted-foreground">Time</dt>
             <dd className="text-foreground/85">
               {course.scheduleDay} {course.startTime}–{course.endTime}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">地点</dt>
+            <dt className="text-muted-foreground">Room</dt>
             <dd className="text-foreground/85">{course.room}</dd>
           </div>
         </dl>

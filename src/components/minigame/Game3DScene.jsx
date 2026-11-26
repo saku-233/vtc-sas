@@ -269,7 +269,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     renderer.domElement.style.touchAction = "none";
     renderer.domElement.style.cursor = "grab";
 
-    // Free orbit camera state + drag handling (全方位视角)
+    // Free orbit camera state + drag handling (full 360° view)
     let orbitTheta = 0;
     let orbitPhi = 0.08;
     const orbitR = 9.5;
@@ -386,7 +386,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const targets = [];
     for (let i = 0; i < TARGET_COUNT; i++) {
       const g = buildSu30();
-      g.rotation.y = 0; // 看前：nose points away from the player (-z)
+      g.rotation.y = 0; // facing forward: nose points away from the player (-z)
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({ map: makeLabelTexture(String.fromCharCode(65 + i), "#ffd9a0"), transparent: true })
       );
@@ -977,7 +977,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
             tg.rotation.z = -0.3 * Math.sin(Math.min(1, k) * Math.PI);
             if (k >= 1) { tg.position.copy(atk.base); atk.phase = null; }
           }
-          tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays 看前 (-z)
+          tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays facing forward (-z)
         } else {
           const av = computeAvoid(TARGET_X[i], tg.userData.baseY, TARGET_Z);
           tg.position.x = TARGET_X[i] + av.ax;

@@ -1,14 +1,14 @@
 import { Bell, Clock } from "lucide-react";
 
 const LEAD_STYLES = {
-  "1天前": "border-yellow-200 bg-yellow-100 text-yellow-800",
-  "2小时前": "border-red-200 bg-red-100 text-red-800",
+  "1 day before": "border-yellow-200 bg-yellow-100 text-yellow-800",
+  "2 hours before": "border-red-200 bg-red-100 text-red-800",
 };
 
 function formatDue(due) {
   const d = new Date(due);
   if (!Number.isFinite(d.getTime())) return due ?? "—";
-  return d.toLocaleString("zh-HK", {
+  return d.toLocaleString("en-GB", {
     timeZone: "Asia/Hong_Kong",
     month: "2-digit",
     day: "2-digit",
@@ -34,7 +34,7 @@ export default function ReminderItem({ reminder, courseName }) {
           {courseName ?? reminder.courseCode} · {reminder.courseCode}
         </p>
         <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-          <Clock className="h-3 w-3" /> 截止 {formatDue(reminder.due)}
+          <Clock className="h-3 w-3" /> Due {formatDue(reminder.due)}
         </p>
       </div>
     </li>

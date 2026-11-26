@@ -16,7 +16,7 @@ function RoleBadge({ role }) {
       }`}
     >
       {isAdmin ? <Shield className="h-3 w-3" /> : <GraduationCap className="h-3 w-3" />}
-      {isAdmin ? "教师 / 管理员" : "学生"}
+      {isAdmin ? "Teacher / Admin" : "Student"}
     </span>
   );
 }
@@ -37,11 +37,11 @@ export default function UserManagement({ users }) {
     setBusy(true);
     try {
       await invite({ data: { email, role } });
-      toast.success("邀请已发送", { description: `${email} 将收到加入邮件` });
+      toast.success("Invitation sent", { description: `${email} will receive a join email` });
       setEmail("");
       router.invalidate();
     } catch (err) {
-      toast.error("邀请失败", { description: err?.message ?? "请稍后重试" });
+      toast.error("Invitation failed", { description: err?.message ?? "Please try again later" });
     } finally {
       setBusy(false);
     }
@@ -53,34 +53,34 @@ export default function UserManagement({ users }) {
         <div className="rounded-2xl border border-border/80 bg-card p-5">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Users className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium uppercase tracking-[0.16em]">总用户</span>
+            <span className="text-xs font-medium uppercase tracking-[0.16em]">Total users</span>
           </div>
           <p className="mt-2 font-heading text-[28px] leading-none text-foreground">{users.length}</p>
         </div>
         <div className="rounded-2xl border border-border/80 bg-card p-5">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Shield className="h-4 w-4 text-blue-600" />
-            <span className="text-xs font-medium uppercase tracking-[0.16em]">教师 / 管理员</span>
+            <span className="text-xs font-medium uppercase tracking-[0.16em]">Teachers / Admins</span>
           </div>
           <p className="mt-2 font-heading text-[28px] leading-none text-foreground">{admins.length}</p>
         </div>
         <div className="rounded-2xl border border-border/80 bg-card p-5">
           <div className="flex items-center gap-2 text-muted-foreground">
             <GraduationCap className="h-4 w-4 text-emerald-600" />
-            <span className="text-xs font-medium uppercase tracking-[0.16em]">学生</span>
+            <span className="text-xs font-medium uppercase tracking-[0.16em]">Students</span>
           </div>
           <p className="mt-2 font-heading text-[28px] leading-none text-foreground">{students.length}</p>
         </div>
       </div>
 
       <div className="rounded-2xl border border-border/80 bg-card p-6">
-        <h2 className="font-heading text-lg text-foreground">邀请新用户</h2>
+        <h2 className="font-heading text-lg text-foreground">Invite a new user</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          被邀请者将收到邮件，以固定密码 123456 登录后自动归入所选角色。
+          Invitees receive an email and, after signing in with the fixed password 123456, are assigned the selected role.
         </p>
         <form onSubmit={submit} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
-            <Label htmlFor="invite-email">电邮</Label>
+            <Label htmlFor="invite-email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -95,11 +95,11 @@ export default function UserManagement({ users }) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label>角色</Label>
+            <Label>Role</Label>
             <div className="grid grid-cols-2 gap-1 rounded-lg border border-border bg-muted/40 p-1">
               {[
-                { value: "user", label: "学生" },
-                { value: "admin", label: "教师" },
+                { value: "user", label: "Student" },
+                { value: "admin", label: "Teacher" },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -122,23 +122,23 @@ export default function UserManagement({ users }) {
             className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-            发送邀请
+            Send invite
           </button>
         </form>
       </div>
 
       <div className="rounded-2xl border border-border/80 bg-card overflow-hidden">
         <div className="border-b border-border/70 px-6 py-4">
-          <h2 className="font-heading text-lg text-foreground">全部用户</h2>
-          <p className="mt-1 text-sm text-muted-foreground">共 {users.length} 个账户，按创建时间倒序排列。</p>
+          <h2 className="font-heading text-lg text-foreground">All users</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{users.length} accounts, newest first.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="px-6 py-3 font-medium">用户</th>
-                <th className="px-6 py-3 font-medium">角色</th>
-                <th className="px-6 py-3 font-medium">加入时间</th>
+                <th className="px-6 py-3 font-medium">User</th>
+                <th className="px-6 py-3 font-medium">Role</th>
+                <th className="px-6 py-3 font-medium">Joined</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -150,7 +150,7 @@ export default function UserManagement({ users }) {
                         {(u.full_name || u.email || "?").charAt(0).toUpperCase()}
                       </span>
                       <div>
-                        <p className="font-medium text-foreground">{u.full_name || "（未命名）"}</p>
+                        <p className="font-medium text-foreground">{u.full_name || "(unnamed)"}</p>
                         <p className="text-xs text-muted-foreground">{u.email}</p>
                       </div>
                     </div>
@@ -158,7 +158,7 @@ export default function UserManagement({ users }) {
                   <td className="px-6 py-3"><RoleBadge role={u.role} /></td>
                   <td className="px-6 py-3 text-muted-foreground">
                     {u.created_date
-                      ? new Date(u.created_date).toLocaleDateString("zh-HK", { timeZone: "Asia/Hong_Kong" })
+                      ? new Date(u.created_date).toLocaleDateString("en-GB", { timeZone: "Asia/Hong_Kong" })
                       : "—"}
                   </td>
                 </tr>
@@ -166,7 +166,7 @@ export default function UserManagement({ users }) {
               {users.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-6 py-10 text-center text-muted-foreground">
-                    暂无用户
+                    No users yet
                   </td>
                 </tr>
               ) : null}

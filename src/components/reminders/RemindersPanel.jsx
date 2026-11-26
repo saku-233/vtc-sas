@@ -9,17 +9,17 @@ export default function RemindersPanel({ reminders, courses, compact = false }) 
   return (
     <section className="rounded-2xl border border-border/80 bg-card p-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-heading text-base text-foreground">作业提醒</h3>
+        <h3 className="font-heading text-base text-foreground">Assignment reminders</h3>
         {compact ? (
           <Link to="/student/reminders" className="inline-flex items-center gap-1 text-xs text-primary transition-opacity hover:opacity-70">
-            全部 <ArrowUpRight className="h-3 w-3" />
+            All <ArrowUpRight className="h-3 w-3" />
           </Link>
         ) : null}
       </div>
       {list.length === 0 ? (
         <div className="mt-4 flex flex-col items-center gap-2 py-8 text-center">
           <BellOff className="h-6 w-6 text-muted-foreground/60" />
-          <p className="text-sm text-muted-foreground">暂无提醒，安心学习。</p>
+          <p className="text-sm text-muted-foreground">No reminders — study with peace of mind.</p>
         </div>
       ) : (
         <ul className="mt-3 space-y-2">

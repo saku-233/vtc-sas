@@ -1,17 +1,17 @@
 import { format, parseISO } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { dueLabel } from "@/lib/assignments";
 
 const STATUS_STYLE = {
-  未开始: "bg-secondary text-secondary-foreground",
-  进行中: "bg-[hsl(38_78%_92%)] text-[hsl(28_68%_30%)]",
-  已提交: "bg-[hsl(168_40%_92%)] text-[hsl(168_45%_24%)]",
-  已评分: "bg-[hsl(212_42%_93%)] text-[hsl(215_42%_30%)]",
+  "Not Started": "bg-secondary text-secondary-foreground",
+  "In Progress": "bg-[hsl(38_78%_92%)] text-[hsl(28_68%_30%)]",
+  "Submitted": "bg-[hsl(168_40%_92%)] text-[hsl(168_45%_24%)]",
+  "Graded": "bg-[hsl(212_42%_93%)] text-[hsl(215_42%_30%)]",
 };
 
 export default function AssignmentRecords({ assignments, courses }) {
   if (!assignments.length) {
-    return <p className="text-sm text-muted-foreground">暂无作业记录。</p>;
+    return <p className="text-sm text-muted-foreground">No assignment records yet.</p>;
   }
   const courseMap = new Map(courses.map((c) => [c.code, c]));
   const sorted = [...assignments].sort((a, b) => (b.due ?? "").localeCompare(a.due ?? ""));
@@ -22,13 +22,13 @@ export default function AssignmentRecords({ assignments, courses }) {
         <table className="w-full text-left text-sm">
           <thead className="bg-secondary/50 text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 font-medium">课程</th>
-              <th className="px-4 py-3 font-medium">作业</th>
-              <th className="px-4 py-3 font-medium">类型</th>
-              <th className="px-4 py-3 font-medium">占比</th>
-              <th className="px-4 py-3 font-medium">截止</th>
-              <th className="px-4 py-3 font-medium">状态</th>
-              <th className="px-4 py-3 font-medium">成绩</th>
+              <th className="px-4 py-3 font-medium">Course</th>
+              <th className="px-4 py-3 font-medium">Assignment</th>
+              <th className="px-4 py-3 font-medium">Type</th>
+              <th className="px-4 py-3 font-medium">Weight</th>
+              <th className="px-4 py-3 font-medium">Due</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Grade</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/70">
@@ -51,7 +51,7 @@ export default function AssignmentRecords({ assignments, courses }) {
                   <td className="px-4 py-3 text-muted-foreground">
                     {a.due ? (
                       <div>
-                        <p>{format(parseISO(a.due), "yyyy-MM-dd", { locale: zhCN })}</p>
+                        <p>{format(parseISO(a.due), "yyyy-MM-dd", { locale: enUS })}</p>
                         <p className="text-[11px] text-muted-foreground/80">{dueLabel(a.due)}</p>
                       </div>
                     ) : (

@@ -23,25 +23,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const STUDENT_LINKS = [
-  { to: "/", label: "首页", icon: Home, exact: true },
-  { to: "/student/dashboard", label: "仪表板", icon: LayoutDashboard },
-  { to: "/student/courses", label: "我的课程", icon: BookOpen },
-  { to: "/student/assignments", label: "我的作业", icon: ClipboardList },
-  { to: "/student/attendance", label: "出席", icon: CalendarCheck },
+  { to: "/", label: "Home", icon: Home, exact: true },
+  { to: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/student/courses", label: "My Courses", icon: BookOpen },
+  { to: "/student/assignments", label: "My Assignments", icon: ClipboardList },
+  { to: "/student/attendance", label: "Attendance", icon: CalendarCheck },
   { to: "/student/chat", label: "Chatbot", icon: MessageSquare },
-  { to: "/student/reminders", label: "提醒", icon: Bell },
-  { to: "/minigame", label: "课程巩固", icon: Gamepad2 },
-  { to: "/student/profile", label: "我的档案", icon: User },
+  { to: "/student/reminders", label: "Reminders", icon: Bell },
+  { to: "/minigame", label: "Course Practice", icon: Gamepad2 },
+  { to: "/student/profile", label: "My Profile", icon: User },
 ];
 
 const TEACHER_LINKS = [
-  { to: "/teacher", label: "首页", icon: Home, exact: true },
-  { to: "/teacher/courses", label: "我的课程", icon: BookOpen },
-  { to: "/teacher/assignments", label: "我发布的作业", icon: ClipboardList },
-  { to: "/teacher/attendance", label: "出席", icon: CalendarCheck },
+  { to: "/teacher", label: "Home", icon: Home, exact: true },
+  { to: "/teacher/courses", label: "My Courses", icon: BookOpen },
+  { to: "/teacher/assignments", label: "Posted Assignments", icon: ClipboardList },
+  { to: "/teacher/attendance", label: "Attendance", icon: CalendarCheck },
   { to: "/teacher/chat", label: "Chatbot", icon: MessageSquare },
-  { to: "/teacher/reminders", label: "提醒", icon: Bell },
-  { to: "/teacher/profile", label: "我的档案", icon: User },
+  { to: "/teacher/reminders", label: "Reminders", icon: Bell },
+  { to: "/teacher/profile", label: "My Profile", icon: User },
 ];
 
 function isLinkActive(pathname, link) {
@@ -54,8 +54,8 @@ export default function AppNav() {
   const { user, logout, navigateToLogin } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  // 导航与主题按当前页面区域决定：学生区显示学生导航，教师区显示教师导航，
-  // 其余区域才回退到用户角色。
+  // Nav and theme follow the current page area: the student area shows student nav, the teacher area shows teacher nav,
+  // other areas fall back to the user role.
   const isStudentArea = pathname.startsWith("/student");
   const isTeacherArea = pathname.startsWith("/teacher");
   const isTeacher = isTeacherArea || (!isStudentArea && user?.role === "admin");
@@ -64,7 +64,7 @@ export default function AppNav() {
   const initial = displayName.charAt(0).toUpperCase();
   const brandTo = user ? (isTeacher ? "/teacher" : "/student/dashboard") : "/";
   const activeLink = links.find((l) => isLinkActive(pathname, l)) ?? links[0];
-  // 平板优先露出的常用项，其余收进「更多」。
+  // Show the most-used items first on tablets; the rest go under "More".
   const PRIMARY_COUNT = 3;
   const primaryLinks = links.slice(0, PRIMARY_COUNT);
   const moreLinks = links.slice(PRIMARY_COUNT);
@@ -125,11 +125,11 @@ export default function AppNav() {
 
         {links.length > 0 ? (
           <>
-          {/* xl+：全部内联 */}
+          {/* xl+: all inline */}
           <nav className="hidden flex-1 items-center justify-center gap-1.5 xl:flex">
             {links.map(renderInline)}
           </nav>
-          {/* md–xl：首页等常用项内联 + 更多下拉 */}
+          {/* md–xl: common items inline + More dropdown */}
           <div className="hidden flex-1 items-center justify-center gap-1.5 md:flex xl:hidden">
             {primaryLinks.map(renderInline)}
             {moreLinks.length > 0 ? (
@@ -139,7 +139,7 @@ export default function AppNav() {
                     type="button"
                     className="inline-flex items-center gap-2 rounded-full px-[11px] py-[10px] text-[13px] leading-[18px] text-[#6b7280] transition-[color,background-color,transform] duration-nav ease-nav hover:bg-[#f1f5f4] hover:text-[#1f2937] active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px] [[data-state=open]_&]:bg-[#265e53] [[data-state=open]_&]:text-white"
                   >
-                    <span>更多</span>
+                    <span>More</span>
                     <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-nav ease-nav [[data-state=open]>&]:rotate-180" strokeWidth={1.8} />
                   </button>
                 </DropdownMenuTrigger>
@@ -153,7 +153,7 @@ export default function AppNav() {
               </DropdownMenu>
             ) : null}
           </div>
-          {/* <md：整组下拉 */}
+          {/* <md: whole group in a dropdown */}
           <div className="flex flex-1 justify-center md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -163,7 +163,7 @@ export default function AppNav() {
                 >
                   <Menu className="h-4 w-4 shrink-0" strokeWidth={1.8} />
                   <span className="max-w-[8.5rem] truncate">
-                    {activeLink?.label ?? "菜单"}
+                    {activeLink?.label ?? "Menu"}
                   </span>
                   <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-nav ease-nav [[data-state=open]>&]:rotate-180" strokeWidth={1.8} />
                 </button>
@@ -191,7 +191,7 @@ export default function AppNav() {
               {initial}
             </span>
             <span className="hidden text-[11px] whitespace-nowrap text-[#6b7280] md:block">
-              {isTeacher ? "教师" : "学生"}
+              {isTeacher ? "Teacher" : "Student"}
             </span>
             <button
               type="button"
@@ -199,7 +199,7 @@ export default function AppNav() {
               className="inline-flex items-center gap-1.5 rounded-full border border-[#d9e2df] bg-white px-2.5 py-2 text-xs whitespace-nowrap text-[#4b5563] transition-[color,border-color,background-color,transform] duration-nav ease-nav hover:border-[#9ac7ba] hover:bg-[#f7fbf9] hover:text-[#265e53] active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px] sm:px-3"
             >
               <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
-              <span className="hidden sm:inline">退出</span>
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         ) : (
@@ -209,7 +209,7 @@ export default function AppNav() {
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#265e53] px-4 py-2 text-xs font-medium text-white transition-opacity duration-nav hover:opacity-90 active:scale-[.97] focus-visible:outline-[3px_solid_#9ac7ba] focus-visible:outline-offset-[3px]"
           >
             <LogIn className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
-            登录
+            Sign in
           </button>
         )}
       </div>

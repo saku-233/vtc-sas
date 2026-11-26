@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["全部", "未开始", "进行中", "已提交", "已评分"];
+const FILTERS = ["All", "Not Started", "In Progress", "Submitted", "Graded"];
 
 export default function AssignmentFilters({ active, counts, onChange }) {
   return (

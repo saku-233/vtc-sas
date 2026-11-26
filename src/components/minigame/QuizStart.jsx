@@ -8,25 +8,25 @@ export default function QuizStart({ onStart }) {
       </span>
       <div>
         <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary/70">SIMULATION</p>
-        <h3 className="mt-1 font-heading text-2xl text-foreground">战斗测验 · 知识空战</h3>
+        <h3 className="mt-1 font-heading text-2xl text-foreground">Combat Quiz · Knowledge Air Combat</h3>
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-          在限时内击落每个目标（答对题目）。速度越快、连击越高，得分越多。生命归零任务终止。
+          Shoot down each target by answering correctly within the time limit. Answer faster and chain combos for higher scores. When your health hits zero, the mission ends.
         </p>
       </div>
       <div className="grid w-full max-w-sm grid-cols-3 gap-3 text-left">
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
           <Target className="h-4 w-4 text-primary" />
-          <p className="mt-1 text-xs text-muted-foreground">目标</p>
+          <p className="mt-1 text-xs text-muted-foreground">Targets</p>
           <p className="font-mono text-sm text-foreground">10</p>
         </div>
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
           <Heart className="h-4 w-4 text-red-500" />
-          <p className="mt-1 text-xs text-muted-foreground">生命</p>
+          <p className="mt-1 text-xs text-muted-foreground">Health</p>
           <p className="font-mono text-sm text-foreground">3</p>
         </div>
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
           <Zap className="h-4 w-4 text-yellow-500" />
-          <p className="mt-1 text-xs text-muted-foreground">限时</p>
+          <p className="mt-1 text-xs text-muted-foreground">Time</p>
           <p className="font-mono text-sm text-foreground">15s</p>
         </div>
       </div>
@@ -34,7 +34,7 @@ export default function QuizStart({ onStart }) {
         onClick={onStart}
         className="rounded-full bg-primary px-8 py-2.5 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:scale-[1.03]"
       >
-        起飞 · Launch
+        Take off · Launch
       </button>
     </div>
   );

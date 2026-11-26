@@ -19,16 +19,16 @@ const isAlreadyVerified = (err) => err?.status === 400 && /already verified/i.te
 const ROLES = [
   {
     key: "student",
-    label: "学生",
-    desc: "查看课程、作业与出席记录",
+    label: "Student",
+    desc: "View courses, assignments and attendance",
     icon: User2,
     placeholder: "you@stu.vtc.edu.hk",
     home: "/student/dashboard",
   },
   {
     key: "teacher",
-    label: "老师",
-    desc: "管理课程、发布作业与点名",
+    label: "Teacher",
+    desc: "Manage courses, post assignments and take attendance",
     icon: GraduationCap,
     placeholder: "you@vtc.edu.hk",
     home: "/teacher",
@@ -37,7 +37,7 @@ const ROLES = [
 
 /**
  * The /register page: pick a role → register → OTP → verifyOtp → setToken.
- * Choosing 老师 promotes the verified account to admin (teacher) role.
+ * Choosing Teacher promotes the verified account to admin (teacher) role.
  */
 export function RegisterPage() {
   const returnTo = safeReturnTo();
@@ -60,7 +60,7 @@ export function RegisterPage() {
       await base44.auth.register({ email, password: FIXED_PASSWORD });
       setStep("otp");
     } catch (err) {
-      setError(err.message || "注册失败");
+      setError(err.message || "Registration failed");
     } finally {
       setBusy(false);
     }
@@ -77,12 +77,12 @@ export function RegisterPage() {
         return;
       }
       if (result?.access_token) base44.auth.setToken(result.access_token);
-      // 老师注册：先把账户提升为 admin，再跳转教师首页。
+      // Teacher registration: promote the account to admin, then redirect to the teacher home.
       if (role === "teacher") {
         try {
           await promote({ data: {} });
         } catch {
-          // 提升失败则按学生身份继续，避免卡死。
+          // If promotion fails, continue as a student to avoid getting stuck.
         }
         window.location.href = activeRole.home;
         return;
@@ -90,7 +90,7 @@ export function RegisterPage() {
       window.location.href = activeRole.home;
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "验证码无效");
+      else setError(err.message || "Invalid code");
       setBusy(false);
     }
   }
@@ -99,10 +99,10 @@ export function RegisterPage() {
     setError("");
     try {
       await base44.auth.resendOtp(email);
-      toast("验证码已发送", { description: "请查收邮件中的最新验证码。" });
+      toast("Code sent", { description: "Check your email for the latest code." });
     } catch (err) {
       if (isAlreadyVerified(err)) setStep("already_verified");
-      else setError(err.message || "验证码发送失败");
+      else setError(err.message || "Couldn't send the code");
     }
   }
 
@@ -139,12 +139,12 @@ export function RegisterPage() {
 
   if (step === "already_verified") {
     return (
-      <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="注册即可开始使用">
+      <AuthLayout icon={UserPlus} title="Create your account" subtitle="Sign up to get started">
         <p className="mb-4 text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{email}</span> 已通过验证，请直接登录。
+          <span className="font-medium text-foreground">{email}</span> is already verified — please sign in directly.
         </p>
         <AuthLink to="/login" returnTo={returnTo} className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          登录
+          Sign in
         </AuthLink>
       </AuthLayout>
     );
@@ -152,10 +152,10 @@ export function RegisterPage() {
 
   if (step === "otp") {
     return (
-      <AuthLayout icon={UserPlus} title="创建你的账户" subtitle={`${activeRole.label}注册`}>
+      <AuthLayout icon={UserPlus} title="Create your account" subtitle={`${activeRole.label} sign up`}>
         <form onSubmit={verify}>
           <p className="mb-4 text-sm text-muted-foreground">
-            我们已向 <span className="font-medium text-foreground">{email}</span> 发送了 6 位验证码。
+            We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>.
           </p>
           <AuthError>{error}</AuthError>
           <div className="mb-6 flex justify-center">
@@ -167,13 +167,13 @@ export function RegisterPage() {
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <SubmitButton busy={busy} busyLabel="验证中..." disabled={busy || otpCode.length < 6}>
-            验证
+          <SubmitButton busy={busy} busyLabel="Verifying..." disabled={busy || otpCode.length < 6}>
+            Verify
           </SubmitButton>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            没收到验证码？{" "}
+            Didn't get a code?{" "}
             <button type="button" onClick={resend} className="font-medium text-primary hover:underline">
-              重新发送
+              Resend
             </button>
           </p>
         </form>
@@ -182,25 +182,25 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout icon={UserPlus} title="创建你的账户" subtitle="选择身份后开始注册">
+    <AuthLayout icon={UserPlus} title="Create your account" subtitle="Pick a role to start">
       <RolePicker />
       <AuthError>{error}</AuthError>
       <form onSubmit={register} className="mt-4 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="register-email">电邮</Label>
+          <Label htmlFor="register-email">Email</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input id="register-email" type="email" autoComplete="email" autoFocus placeholder={activeRole.placeholder} value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10" disabled={busy} required />
           </div>
         </div>
-        <SubmitButton busy={busy} busyLabel="创建中...">
-          创建{activeRole.label}账户
+        <SubmitButton busy={busy} busyLabel="Creating...">
+          Create {activeRole.label} account
         </SubmitButton>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        已有账户？{" "}
+        Already have an account?{" "}
         <AuthLink to="/login" returnTo={returnTo}>
-          登录
+          Sign in
         </AuthLink>
       </p>
     </AuthLayout>

@@ -10,10 +10,10 @@
     "status": {
       "type": "enum",
       "enum": [
-        "\u51fa\u5e2d",
-        "\u8fdf\u5230",
-        "\u8bf7\u5047",
-        "\u7f3a\u5e2d"
+        "Present",
+        "Late",
+        "Excused",
+        "Absent"
       ],
       "enumColors": [
         "green",

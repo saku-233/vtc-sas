@@ -1,10 +1,10 @@
 import { BookOpen } from "lucide-react";
 
-const DAY_ORDER = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 export default function CourseHistory({ courses }) {
   if (!courses.length) {
-    return <p className="text-sm text-muted-foreground">暂无选课记录。</p>;
+    return <p className="text-sm text-muted-foreground">No course selection records yet.</p>;
   }
   const sorted = [...courses].sort((a, b) => {
     const da = DAY_ORDER.indexOf(a.scheduleDay);
@@ -29,7 +29,7 @@ export default function CourseHistory({ courses }) {
                 <h3 className="mt-0.5 font-heading text-base text-foreground">{c.name}</h3>
               </div>
               <span className="rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">
-                {c.credits ? `${c.credits} 学分` : "选修"}
+                {c.credits ? `${c.credits} credits` : "Elective"}
               </span>
             </div>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
@@ -39,9 +39,9 @@ export default function CourseHistory({ courses }) {
                   {c.scheduleDay} {c.startTime}-{c.endTime}
                 </span>
               ) : null}
-              {c.instructor ? <span>教师 · {c.instructor}</span> : null}
-              {c.room ? <span>课室 · {c.room}</span> : null}
-              {c.students ? <span>选课人数 · {c.students}</span> : null}
+              {c.instructor ? <span>Instructor · {c.instructor}</span> : null}
+              {c.room ? <span>Room · {c.room}</span> : null}
+              {c.students ? <span>Enrolled · {c.students}</span> : null}
             </div>
           </div>
         </li>

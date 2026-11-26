@@ -7,7 +7,7 @@ import AdminLogin from "@/components/admin/AdminLogin";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
-  head: () => ({ meta: [{ title: "超级管理后台 · VTC-SAS" }] }),
+  head: () => ({ meta: [{ title: "Super Admin Console · VTC-SAS" }] }),
   loader: async () => {
     try {
       return { users: await listUsers() };
@@ -45,14 +45,14 @@ function AdminConsole() {
       <div className="grid min-h-screen place-items-center bg-background px-6">
         <div className="max-w-sm space-y-4 text-center">
           <Shield className="mx-auto h-10 w-10 text-destructive" />
-          <h1 className="font-heading text-xl text-foreground">权限不足</h1>
-          <p className="text-sm text-muted-foreground">此入口仅限管理员（教师）账户访问。</p>
+          <h1 className="font-heading text-xl text-foreground">Access denied</h1>
+          <p className="text-sm text-muted-foreground">This entrance is for admin (teacher) accounts only.</p>
           <Link
             to="/student/dashboard"
             className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            返回学生端
+            Back to student side
           </Link>
         </div>
       </div>
@@ -71,7 +71,7 @@ function AdminConsole() {
               <strong className="block font-heading text-[15px] font-bold tracking-[0.12em] text-[#1f2937]">
                 VTC-SAS
               </strong>
-              <span className="text-[11px] text-[#6b7280]">超级管理后台 · 独立入口</span>
+              <span className="text-[11px] text-[#6b7280]">Super Admin Console · separate entrance</span>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
@@ -80,7 +80,7 @@ function AdminConsole() {
               className="inline-flex items-center gap-1.5 rounded-full border border-[#d9e2df] bg-white px-3 py-2 text-xs text-[#4b5563] transition-colors hover:border-[#9ac7ba] hover:text-[#265e53]"
             >
               <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.8} />
-              返回主应用
+              Back to app
             </Link>
             <button
               type="button"
@@ -88,7 +88,7 @@ function AdminConsole() {
               className="inline-flex items-center gap-1.5 rounded-full border border-[#d9e2df] bg-white px-3 py-2 text-xs text-[#4b5563] transition-colors hover:border-[#9ac7ba] hover:text-[#265e53]"
             >
               <LogOut className="h-[18px] w-[18px]" strokeWidth={1.8} />
-              退出
+              Sign out
             </button>
           </div>
         </div>
@@ -99,15 +99,15 @@ function AdminConsole() {
             <div className="max-w-2xl">
               <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-primary/70">Super Admin</p>
               <h1 className="mt-3 font-heading text-[30px] leading-[1.18] tracking-tight text-foreground sm:text-[38px]">
-                用户管理
+                User Management
               </h1>
               <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                超级管理员可查看全体账户、邀请新用户并按角色分配权限。此为独立入口，与主应用分开。
+                Super admins can view all accounts, invite new users and assign roles. This is a separate entrance, kept apart from the main app.
               </p>
             </div>
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary">
               <Shield className="h-3.5 w-3.5" />
-              超级管理员
+              Super admin
             </span>
           </div>
           <UserManagement users={users} />

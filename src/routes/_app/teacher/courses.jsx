@@ -6,7 +6,7 @@ import { listCourses } from "@/lib/server-fns";
 import { teacherOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/teacher/courses")({
-  head: () => ({ meta: [{ title: "我教授的课程 · VTC-SAS" }, { name: "description", content: "本学期授课科目、上课时间与课室。" }] }),
+  head: () => ({ meta: [{ title: "My Courses · VTC-SAS" }, { name: "description", content: "The subjects, class times and rooms you teach this semester." }] }),
   beforeLoad: teacherOnly,
   loader: () => listCourses(),
   component: TeacherCoursesPage,
@@ -18,12 +18,12 @@ function TeacherCoursesPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2026 秋季学期"
-        title="我教授的课程"
-        description="本学期授课科目、上课时间与课室。"
+        eyebrow="Fall 2026 Semester"
+        title="My Courses"
+        description="The subjects, class times and rooms you teach this semester."
       />
       {courses.length === 0 ? (
-        <p className="text-sm text-muted-foreground">还没有课程资料。</p>
+        <p className="text-sm text-muted-foreground">No course information yet.</p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {courses.map((course) => (

@@ -1,4 +1,4 @@
-// 学校邮箱白名单：只有以下两个邮箱可以登录/注册。
+// School email allowlist: only the following addresses may sign in / register.
 const SCHOOL_EMAILS = ["123@stu.vtc.edu.hk", "123@vtc.edu.hk"];
 
 export function isSchoolEmail(email) {
@@ -6,9 +6,9 @@ export function isSchoolEmail(email) {
   return SCHOOL_EMAILS.includes(email.trim().toLowerCase());
 }
 
-// 白名单账号的固定密码，用户无需自行输入。
+// Fixed password for allowlisted accounts; users do not enter it themselves.
 export const FIXED_PASSWORD = "Vtc123456";
 
 export function schoolEmailHint() {
-  return "仅允许 123@stu.vtc.edu.hk 或 123@vtc.edu.hk 登录。";
+  return "Only 123@stu.vtc.edu.hk or 123@vtc.edu.hk may sign in.";
 }

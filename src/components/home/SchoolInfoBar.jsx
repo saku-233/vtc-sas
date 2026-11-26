@@ -3,27 +3,27 @@ import { Info, Phone, CalendarDays, Newspaper } from "lucide-react";
 const INFO_ITEMS = [
   {
     icon: Info,
-    label: "关于本校",
-    title: "VTC 职业训练局",
-    text: "培育专业人才，提供高质量职业教育课程，连结学术与实务。",
+    label: "About",
+    title: "Vocational Training Council",
+    text: "Nurturing professionals with high-quality vocational education that bridges study and practice.",
   },
   {
     icon: Phone,
-    label: "联络资讯",
-    title: "校务处",
-    text: "电话：+852 3700 7000 · 电邮：enquiry@vtc.edu.hk",
+    label: "Contact",
+    title: "Academic Office",
+    text: "Tel: +852 3700 7000 · Email: enquiry@vtc.edu.hk",
   },
   {
     icon: CalendarDays,
-    label: "活动",
-    title: "校园活动",
-    text: "学期开放日、行业讲座及技能工作坊，随时查看最新日程。",
+    label: "Events",
+    title: "Campus Activities",
+    text: "Open days, industry talks and skills workshops — check the latest schedule anytime.",
   },
   {
     icon: Newspaper,
-    label: "新闻",
-    title: "最新公告",
-    text: "课程更新、奖学金消息与学界竞赛资讯一手掌握。",
+    label: "News",
+    title: "Latest Announcements",
+    text: "Course updates, scholarship news and competition information, all in one place.",
   },
 ];
 

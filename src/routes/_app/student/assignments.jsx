@@ -12,8 +12,8 @@ import RemindersPanel from "@/components/reminders/RemindersPanel";
 export const Route = createFileRoute("/_app/student/assignments")({
   head: () => ({
     meta: [
-      { title: "我的作业 · VTC-SAS" },
-      { name: "description", content: "所有课程的作业、截止日期、占总评比重与提交状态集中在一页。" },
+      { title: "My Assignments · VTC-SAS" },
+      { name: "description", content: "Every course's assignments, deadlines, final-grade weightings and submission status on one page." },
     ],
   }),
   loader: async () => {
@@ -29,7 +29,7 @@ function AssignmentsPage() {
   const courseByCode = useMemo(() => Object.fromEntries(courses.map((c) => [c.code, c])), [courses]);
 
   const [items, setItems] = useState(assignments);
-  const [filter, setFilter] = useState("全部");
+  const [filter, setFilter] = useState("All");
   const [today, setToday] = useState(null);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function AssignmentsPage() {
   }, []);
 
   const counts = useMemo(() => {
-    const base = { 全部: items.length, 未开始: 0, 进行中: 0, 已提交: 0, 已评分: 0 };
+    const base = { All: items.length, "Not Started": 0, "In Progress": 0, "Submitted": 0, "Graded": 0 };
     items.forEach((item) => {
       base[item.status] = (base[item.status] ?? 0) + 1;
     });
@@ -60,7 +60,7 @@ function AssignmentsPage() {
   }, [items, today]);
 
   const visible = useMemo(() => {
-    const list = filter === "全部" ? items : items.filter((item) => item.status === filter);
+    const list = filter === "All" ? items : items.filter((item) => item.status === filter);
     return [...list].sort((a, b) => a.due.localeCompare(b.due));
   }, [items, filter]);
 
@@ -68,7 +68,7 @@ function AssignmentsPage() {
     setItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
-        return { ...item, status: DONE_STATUSES.includes(item.status) ? "未开始" : "已提交" };
+        return { ...item, status: DONE_STATUSES.includes(item.status) ? "Not Started" : "Submitted" };
       })
     );
   }
@@ -76,9 +76,9 @@ function AssignmentsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2026 秋季学期"
-        title="我的作业"
-        description="每项作业的截止日期、占总评比重与提交状态，按到期日排列。"
+        eyebrow="Fall 2026 Semester"
+        title="My Assignments"
+        description="Each assignment's deadline, final-grade weighting and submission status, sorted by due date."
       />
 
       <AssignmentStats summary={summary} />
@@ -87,13 +87,13 @@ function AssignmentsPage() {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <AssignmentFilters active={filter} counts={counts} onChange={setFilter} />
-        <p className="text-xs text-muted-foreground sm:text-right">共 {visible.length} 项</p>
+        <p className="text-xs text-muted-foreground sm:text-right">{visible.length} items</p>
       </div>
 
       {visible.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
-          <p className="font-heading text-lg text-foreground">这里还没有作业</p>
-          <p className="mt-2 text-sm text-muted-foreground">换个筛选条件看看其他状态的作业。</p>
+          <p className="font-heading text-lg text-foreground">No assignments here</p>
+          <p className="mt-2 text-sm text-muted-foreground">Try a different filter to see other statuses.</p>
         </div>
       ) : (
         <ul className="space-y-3">

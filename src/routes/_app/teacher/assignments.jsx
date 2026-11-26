@@ -5,7 +5,7 @@ import { teacherOnly } from "@/lib/routeGuards";
 import BatchAssignmentManager from "@/components/teacher/BatchAssignmentManager";
 
 export const Route = createFileRoute("/_app/teacher/assignments")({
-  head: () => ({ meta: [{ title: "作业管理 · VTC-SAS" }, { name: "description", content: "批量编辑、发布与删除多个班级的作业。" }] }),
+  head: () => ({ meta: [{ title: "Assignment Management · VTC-SAS" }, { name: "description", content: "Batch edit, publish and delete assignments across classes." }] }),
   beforeLoad: teacherOnly,
   loader: async () => {
     const [courses, assignments] = await Promise.all([listCourses(), listAssignments()]);
@@ -20,9 +20,9 @@ function TeacherAssignmentsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2026 秋季学期"
-        title="作业管理"
-        description="批量编辑多个班级的作业、统一设置截止日期与状态，一键发布或删除。"
+        eyebrow="Fall 2026 Semester"
+        title="Assignment Management"
+        description="Batch edit assignments across classes, set due dates and statuses in bulk, and publish or delete in one click."
       />
       <BatchAssignmentManager assignments={assignments} courses={courses} />
     </div>

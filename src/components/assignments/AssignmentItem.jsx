@@ -3,10 +3,10 @@ import { countdownText, daysUntil, dueLabel, DONE_STATUSES } from "@/lib/assignm
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLE = {
-  未开始: "bg-secondary text-secondary-foreground",
-  进行中: "bg-[hsl(38_78%_92%)] text-[hsl(28_68%_30%)]",
-  已提交: "bg-[hsl(168_40%_92%)] text-[hsl(168_45%_24%)]",
-  已评分: "bg-[hsl(212_42%_93%)] text-[hsl(215_42%_30%)]",
+  "Not Started": "bg-secondary text-secondary-foreground",
+  "In Progress": "bg-[hsl(38_78%_92%)] text-[hsl(28_68%_30%)]",
+  "Submitted": "bg-[hsl(168_40%_92%)] text-[hsl(168_45%_24%)]",
+  "Graded": "bg-[hsl(212_42%_93%)] text-[hsl(215_42%_30%)]",
 };
 
 export default function AssignmentItem({ item, course, today, onToggle }) {
@@ -39,13 +39,13 @@ export default function AssignmentItem({ item, course, today, onToggle }) {
             <span>{item.type}</span>
             <span className="flex items-center gap-1">
               <Percent className="h-3.5 w-3.5" />
-              占总评 {item.weight}%
+              {item.weight}% of final grade
             </span>
             <span className="flex items-center gap-1">
               <CalendarDays className="h-3.5 w-3.5" />
               {dueLabel(item.due)}
             </span>
-            {item.grade ? <span className="text-foreground/75">成绩 {item.grade}</span> : null}
+            {item.grade ? <span className="text-foreground/75">Grade {item.grade}</span> : null}
           </div>
         </div>
       </div>
@@ -66,14 +66,14 @@ export default function AssignmentItem({ item, course, today, onToggle }) {
           {item.status}
         </span>
 
-        {item.status !== "已评分" ? (
+        {item.status !== "Graded" ? (
           <button
             type="button"
             onClick={() => onToggle(item.id)}
             className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-foreground transition-colors duration-200 hover:border-primary/40 hover:bg-secondary"
           >
             {done ? <RotateCcw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
-            {done ? "撤销提交" : "标记已提交"}
+            {done ? "Undo submit" : "Mark submitted"}
           </button>
         ) : null}
       </div>

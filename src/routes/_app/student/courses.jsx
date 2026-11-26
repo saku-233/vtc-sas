@@ -6,7 +6,7 @@ import { listCourses } from "@/lib/server-fns";
 import { studentOnly } from "@/lib/routeGuards";
 
 export const Route = createFileRoute("/_app/student/courses")({
-  head: () => ({ meta: [{ title: "我的课程 · VTC-SAS" }, { name: "description", content: "本学期修读的科目、上课时间与老师。" }] }),
+  head: () => ({ meta: [{ title: "My Courses · VTC-SAS" }, { name: "description", content: "This semester's subjects, class times and instructors." }] }),
   beforeLoad: studentOnly,
   loader: () => listCourses(),
   component: CoursesPage,
@@ -18,12 +18,12 @@ function CoursesPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="2026 秋季学期"
-        title="我的课程"
-        description="本学期修读的科目、上课时间与授课老师。"
+        eyebrow="Fall 2026 Semester"
+        title="My Courses"
+        description="The subjects, class times and instructors for this semester."
       />
       {courses.length === 0 ? (
-        <p className="text-sm text-muted-foreground">还没有课程资料。</p>
+        <p className="text-sm text-muted-foreground">No course information yet.</p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {courses.map((course) => (
@@ -33,8 +33,8 @@ function CoursesPage() {
       )}
       <div className="space-y-3 pt-2">
         <div>
-          <h2 className="font-heading text-xl text-foreground">课程巩固知识空战</h2>
-          <p className="mt-1 text-sm text-muted-foreground">用学科问答巩固本学期知识，答对击落敌机。</p>
+          <h2 className="font-heading text-xl text-foreground">Course practice: knowledge air combat</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Reinforce this semester's content with subject quizzes — answer right to shoot down the enemy.</p>
         </div>
         <CombatQuiz />
       </div>

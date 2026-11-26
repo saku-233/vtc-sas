@@ -3,16 +3,16 @@ import { useServerFn } from "@tanstack/react-start";
 import { Sparkles, Cpu, Send } from "lucide-react";
 import { askGemini } from "@/lib/server-fns";
 
-const SUGGESTIONS = ["我最近有什么作业到期？", "本周课程时间表", "我的出席率怎样？"];
+const SUGGESTIONS = ["What assignments are due soon?", "This week's course schedule", "How is my attendance?"];
 
 const ENGINES = [
-  { id: "gemini", label: "Gemini", icon: Sparkles, hint: "云端 AI，按数据智能回答" },
-  { id: "local", label: "本地AI", icon: Cpu, hint: "即时规则匹配，无需联网" },
+  { id: "gemini", label: "Gemini", icon: Sparkles, hint: "Cloud AI, answers from your data" },
+  { id: "local", label: "Local AI", icon: Cpu, hint: "Instant rule-based matching, no network needed" },
 ];
 
 export default function ChatWindow({ courses, assignments, attendance }) {
   const [messages, setMessages] = useState([
-    { role: "assistant", text: "你好！我可以帮你查看作业、课程和出席。选择上方引擎，试试下面的问题或直接输入。" },
+    { role: "assistant", text: "Hi! I can help you check assignments, courses and attendance. Pick an engine above and try a suggestion or type your own question." },
   ]);
   const [input, setInput] = useState("");
   const [engine, setEngine] = useState("gemini");
@@ -20,25 +20,26 @@ export default function ChatWindow({ courses, assignments, attendance }) {
   const askGeminiFn = useServerFn(askGemini);
 
   function answer(q) {
-    if (q.includes("作业") || q.includes("截止") || q.includes("到期")) {
+    const ql = q.toLowerCase();
+    if (ql.includes("assignment") || ql.includes("due") || ql.includes("deadline")) {
       const open = assignments
-        .filter((a) => !["已提交", "已评分"].includes(a.status))
+        .filter((a) => !["Submitted", "Graded"].includes(a.status))
         .slice()
         .sort((a, b) => (a.due ?? "").localeCompare(b.due ?? ""))
         .slice(0, 3);
-      if (!open.length) return "暂时没有未完成的作业 🎉";
-      return "最近的待办作业：\n" + open.map((a) => `• ${a.title}（${a.courseCode}）— 截止 ${a.due}`).join("\n");
+      if (!open.length) return "No outstanding assignments right now 🎉";
+      return "Upcoming assignments:\n" + open.map((a) => `• ${a.title} (${a.courseCode}) — due ${a.due}`).join("\n");
     }
-    if (q.includes("出席") || q.includes("attendance")) {
+    if (ql.includes("attendance") || ql.includes("present")) {
       const total = attendance.length;
-      const present = attendance.filter((a) => a.status === "出席").length;
+      const present = attendance.filter((a) => a.status === "Present").length;
       const rate = total ? Math.round((present / total) * 100) : 0;
-      return `本学期出席率 ${rate}%（出席 ${present} / 共 ${total} 节）。`;
+      return `This semester's attendance rate is ${rate}% (present ${present} / ${total} sessions).`;
     }
-    if (q.includes("课") || q.includes("时间") || q.includes("节")) {
-      return "本周课程：\n" + courses.map((c) => `• ${c.name}（${c.code}）— ${c.scheduleDay} ${c.startTime}–${c.endTime}`).join("\n");
+    if (ql.includes("course") || ql.includes("class") || ql.includes("schedule") || ql.includes("time")) {
+      return "This week's courses:\n" + courses.map((c) => `• ${c.name} (${c.code}) — ${c.scheduleDay} ${c.startTime}–${c.endTime}`).join("\n");
     }
-    return "你可以问我：作业到期、课程时间或出席率。";
+    return "You can ask me about: assignments due, course schedule, or attendance rate.";
   }
 
   function send(text) {
@@ -58,7 +59,7 @@ export default function ChatWindow({ courses, assignments, attendance }) {
       .catch(() =>
         setMessages((m) => [
           ...m,
-          { role: "assistant", text: "抱歉，Gemini 暂时无法回应，请稍后再试或切换到本地AI。" },
+          { role: "assistant", text: "Sorry, Gemini can't respond right now. Please try again later or switch to Local AI." },
         ])
       )
       .finally(() => setPending(false));
@@ -110,7 +111,7 @@ export default function ChatWindow({ courses, assignments, attendance }) {
         {pending && (
           <div className="flex justify-start">
             <p className="rounded-2xl rounded-bl-md bg-secondary px-4 py-2.5 text-sm text-muted-foreground">
-              Gemini 思考中…
+              Gemini is thinking…
             </p>
           </div>
         )}
@@ -140,7 +141,7 @@ export default function ChatWindow({ courses, assignments, attendance }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="输入你的问题…"
+          placeholder="Type your question…"
           disabled={pending}
           className="h-10 flex-1 rounded-full border border-input bg-background px-4 text-sm outline-none focus:border-primary/50 disabled:opacity-60"
         />
@@ -148,7 +149,7 @@ export default function ChatWindow({ courses, assignments, attendance }) {
           type="submit"
           disabled={pending}
           className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-          aria-label="发送"
+          aria-label="Send"
         >
           <Send className="h-4 w-4" />
         </button>

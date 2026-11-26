@@ -1,7 +1,7 @@
 const STATS = [
-  { key: "open", label: "待完成", hint: "未开始或进行中" },
-  { key: "soon", label: "七天内截止", hint: "需要优先处理" },
-  { key: "submitted", label: "已提交", hint: "含已评分" },
+  { key: "open", label: "To do", hint: "Not started or in progress" },
+  { key: "soon", label: "Due within 7 days", hint: "Needs priority" },
+  { key: "submitted", label: "Submitted", hint: "Includes graded" },
 ];
 
 export default function AssignmentStats({ summary }) {

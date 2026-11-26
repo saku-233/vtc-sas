@@ -9,7 +9,7 @@ import AttendanceOverview from "@/components/profile/AttendanceOverview";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_app/student/profile")({
-  head: () => ({ meta: [{ title: "我的档案 · VTC-SAS" }] }),
+  head: () => ({ meta: [{ title: "My Profile · VTC-SAS" }] }),
   loader: async () => {
     const [courses, assignments, attendance] = await Promise.all([
       listCourses(),
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_app/student/profile")({
   component: ProfilePage,
 });
 
-const SUBMITTED = new Set(["已提交", "已评分"]);
+const SUBMITTED = new Set(["Submitted", "Graded"]);
 function parseGrade(g) {
   if (!g) return null;
   const n = parseFloat(g);
@@ -47,7 +47,7 @@ function ProfilePage() {
 
   const totalCourses = courses.length;
   const totalAssignments = assignments.length;
-  const presentCount = attendance.filter((a) => a.status === "出席").length;
+  const presentCount = attendance.filter((a) => a.status === "Present").length;
   const attendanceRate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 0;
   const grades = assignments.map((a) => parseGrade(a.grade)).filter((n) => n !== null);
   const avgGrade = grades.length ? Math.round((grades.reduce((s, n) => s + n, 0) / grades.length) * 10) / 10 : null;
@@ -55,23 +55,23 @@ function ProfilePage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Student Account Backend"
-        title="我的学业档案"
-        description="集中查看你的选课历史、作业记录与累计出席统计。"
+        eyebrow="Student Account"
+        title="My Academic Profile"
+        description="Your course history, assignment records and cumulative attendance in one place."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={GraduationCap} label="选课总数" value={totalCourses} sub="本学期已选课程" />
-        <StatCard icon={ClipboardList} label="作业总数" value={totalAssignments} sub={`${assignments.filter((a) => SUBMITTED.has(a.status)).length} 份已提交`} />
-        <StatCard icon={CalendarCheck} label="出席率" value={`${attendanceRate}%`} sub={`${presentCount} / ${attendance.length} 节`} accent="text-emerald-600" />
-        <StatCard icon={TrendingUp} label="平均成绩" value={avgGrade !== null ? avgGrade : "—"} sub={avgGrade !== null ? "分（已评分作业）" : "暂无评分"} accent="text-blue-600" />
+        <StatCard icon={GraduationCap} label="Courses" value={totalCourses} sub="Enrolled this semester" />
+        <StatCard icon={ClipboardList} label="Assignments" value={totalAssignments} sub={`${assignments.filter((a) => SUBMITTED.has(a.status)).length} submitted`} />
+        <StatCard icon={CalendarCheck} label="Attendance rate" value={`${attendanceRate}%`} sub={`${presentCount} / ${attendance.length} sessions`} accent="text-emerald-600" />
+        <StatCard icon={TrendingUp} label="Avg grade" value={avgGrade !== null ? avgGrade : "—"} sub={avgGrade !== null ? "pts (graded assignments)" : "No grades yet"} accent="text-blue-600" />
       </div>
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-          <TabsTrigger value="courses">选课历史</TabsTrigger>
-          <TabsTrigger value="assignments">作业记录</TabsTrigger>
-          <TabsTrigger value="attendance">出席统计</TabsTrigger>
+          <TabsTrigger value="courses">Course history</TabsTrigger>
+          <TabsTrigger value="assignments">Assignment records</TabsTrigger>
+          <TabsTrigger value="attendance">Attendance stats</TabsTrigger>
         </TabsList>
         <TabsContent value="courses" className="mt-5">
           <CourseHistory courses={courses} />

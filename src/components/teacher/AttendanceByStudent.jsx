@@ -1,34 +1,34 @@
 import { format, parseISO } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { CheckCircle2, XCircle, Clock, FileText } from "lucide-react";
 import { AttendanceBadge } from "@/components/attendance/AttendanceSummary";
 
 const STATUS_ICON = {
-  出席: { icon: CheckCircle2, className: "text-emerald-600" },
-  缺席: { icon: XCircle, className: "text-red-500" },
-  迟到: { icon: Clock, className: "text-amber-600" },
-  请假: { icon: FileText, className: "text-purple-600" },
+  Present: { icon: CheckCircle2, className: "text-emerald-600" },
+  Absent: { icon: XCircle, className: "text-red-500" },
+  Late: { icon: Clock, className: "text-amber-600" },
+  Excused: { icon: FileText, className: "text-purple-600" },
 };
 
 export default function AttendanceByStudent({ attendance, courses }) {
   const courseByCode = Object.fromEntries(courses.map((c) => [c.code, c]));
   const byStudent = {};
   attendance.forEach((row) => {
-    const name = (row.student ?? "").trim() || "未指定学生";
+    const name = (row.student ?? "").trim() || "Unassigned";
     (byStudent[name] ??= []).push(row);
   });
-  const students = Object.entries(byStudent).sort(([a], [b]) => a.localeCompare(b, "zh-Hant"));
+  const students = Object.entries(byStudent).sort(([a], [b]) => a.localeCompare(b, "en"));
 
   if (students.length === 0) {
-    return <p className="text-sm text-muted-foreground">暂无出席记录。</p>;
+    return <p className="text-sm text-muted-foreground">No attendance records yet.</p>;
   }
 
   return (
     <div className="space-y-4">
       {students.map(([name, rows]) => {
         const total = rows.length;
-        const present = rows.filter((r) => r.status === "出席").length;
-        const absent = rows.filter((r) => r.status === "缺席").length;
+        const present = rows.filter((r) => r.status === "Present").length;
+        const absent = rows.filter((r) => r.status === "Absent").length;
         const rate = total ? Math.round((present / total) * 100) : 0;
         const sorted = rows.slice().sort((a, b) => b.date.localeCompare(a.date));
         const rateStyle =
@@ -48,12 +48,12 @@ export default function AttendanceByStudent({ attendance, courses }) {
                 <div>
                   <h3 className="font-heading text-base text-foreground">{name}</h3>
                   <p className="text-[11px] text-muted-foreground">
-                    {rows[0]?.studentId ? `学号 ${rows[0].studentId} · ` : ""}共 {total} 节 · 出席 {present} · 缺席 {absent}
+                    {rows[0]?.studentId ? `ID ${rows[0].studentId} · ` : ""}{total} sessions · present {present} · absent {absent}
                   </p>
                 </div>
               </div>
               <span className={`rounded-full px-3 py-1 text-sm font-medium ${rateStyle}`}>
-                出席率 {rate}%
+                {rate}% present
               </span>
             </div>
 
@@ -65,7 +65,7 @@ export default function AttendanceByStudent({ attendance, courses }) {
                   <li key={row.id} className="flex items-center justify-between py-2.5">
                     <div className="flex min-w-0 items-center gap-2 text-sm text-foreground/85">
                       {Icon ? <Icon className={`h-4 w-4 shrink-0 ${meta.className}`} /> : null}
-                      <span className="shrink-0">{format(parseISO(row.date), "M月d日 EEEE", { locale: zhCN })}</span>
+                      <span className="shrink-0">{format(parseISO(row.date), "MMM d, EEEE", { locale: enUS })}</span>
                       <span className="truncate text-muted-foreground">· {courseByCode[row.courseCode]?.name ?? row.courseCode}</span>
                     </div>
                     <AttendanceBadge status={row.status} />

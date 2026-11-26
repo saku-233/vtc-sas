@@ -20,8 +20,8 @@
     "leadTime": {
       "type": "enum",
       "enum": [
-        "1\u5929\u524d",
-        "2\u5c0f\u65f6\u524d"
+        "1 day before",
+        "2 hours before"
       ],
       "enumColors": [
         "yellow",

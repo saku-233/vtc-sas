@@ -213,7 +213,7 @@ export default function CombatGame3D({ fullscreen = false }) {
             className="rounded-full border border-red-500/60 bg-red-950/40 px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.3em] text-red-300 backdrop-blur-sm"
             style={{ animation: "mg-warn 0.9s ease-out forwards" }}
           >
-            ⚠ 敌方锁定 · ENEMY INCOMING
+            ⚠ ENEMY LOCK · INCOMING
           </span>
         </div>
       )}
@@ -226,7 +226,7 @@ export default function CombatGame3D({ fullscreen = false }) {
           onClick={() => sceneRef.current?.resetView?.()}
           className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-slate-900/70 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md transition-colors hover:border-cyan-300/60 hover:text-cyan-100"
         >
-          <RefreshCw className="h-3.5 w-3.5" /> 重置视角
+          <RefreshCw className="h-3.5 w-3.5" /> Reset view
         </button>
       )}
 
@@ -341,7 +341,7 @@ export default function CombatGame3D({ fullscreen = false }) {
             <QuizStart onStart={start} />
             {loadingQ ? (
               <p className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-primary/70">
-                正在由 Gemini 生成 IT114115 题目…
+                Generating IT114115 questions with Gemini…
               </p>
             ) : null}
           </div>

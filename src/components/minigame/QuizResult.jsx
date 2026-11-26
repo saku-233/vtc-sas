@@ -14,15 +14,15 @@ export default function QuizResult({ score, maxCombo, hits, destroyed, total, on
       </div>
       <div className="grid w-full max-w-sm grid-cols-3 gap-3">
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
-          <p className="text-xs text-muted-foreground">总分</p>
+          <p className="text-xs text-muted-foreground">Score</p>
           <p className="font-mono text-lg text-foreground">{score}</p>
         </div>
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
-          <p className="text-xs text-muted-foreground">最高连击</p>
+          <p className="text-xs text-muted-foreground">Best combo</p>
           <p className="font-mono text-lg text-foreground">×{maxCombo}</p>
         </div>
         <div className="rounded-xl border border-border/70 bg-background/40 p-3">
-          <p className="text-xs text-muted-foreground">击落</p>
+          <p className="text-xs text-muted-foreground">Downed</p>
           <p className="font-mono text-lg text-foreground">{destroyed}/{total}</p>
         </div>
       </div>
@@ -30,7 +30,7 @@ export default function QuizResult({ score, maxCombo, hits, destroyed, total, on
         onClick={onRestart}
         className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-2.5 font-mono text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:scale-[1.03]"
       >
-        <RotateCcw className="h-4 w-4" /> 再次出击
+        <RotateCcw className="h-4 w-4" /> Fly again
       </button>
     </div>
   );

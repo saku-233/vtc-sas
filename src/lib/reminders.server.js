@@ -1,10 +1,10 @@
-const DONE_STATUSES = ["已提交", "已评分"];
+const DONE_STATUSES = ["Submitted", "Graded"];
 const HOUR = 3600000;
 
 function formatDue(due) {
   const d = new Date(due);
   if (!Number.isFinite(d.getTime())) return due ?? "—";
-  return d.toLocaleString("zh-HK", {
+  return d.toLocaleString("en-GB", {
     timeZone: "Asia/Hong_Kong",
     year: "numeric",
     month: "2-digit",
@@ -16,20 +16,20 @@ function formatDue(due) {
 
 async function sendReminderEmail(svc, to, assignment, course, leadTime, origin) {
   const courseName = course?.name ?? assignment.courseCode;
-  const subject = `作业提醒 · ${assignment.title}（截止${leadTime}）`;
-  const body = `你好，
+  const subject = `Assignment reminder · ${assignment.title} (due ${leadTime})`;
+  const body = `Hello,
 
-这是来自 VTC-SAS 的自动作业提醒：
+This is an automatic assignment reminder from VTC-SAS:
 
-  作业：${assignment.title}
-  课程：${courseName}（${assignment.courseCode}）
-  截止时间：${formatDue(assignment.due)}
-  提醒时间：截止${leadTime}
+  Assignment: ${assignment.title}
+  Course: ${courseName} (${assignment.courseCode})
+  Due: ${formatDue(assignment.due)}
+  Reminder: due ${leadTime}
 
-请尽快前往 VTC-SAS 完成提交，避免错过最终期限。
-打开作业页面：${origin}/assignments
+Please head to VTC-SAS to submit before the deadline.
+Open assignments: ${origin}/assignments
 
-—— VTC-SAS 自动提醒`;
+— VTC-SAS automatic reminder`;
   await svc.integrations.Core.SendEmail({ to, subject, body });
 }
 
@@ -56,8 +56,8 @@ export async function runReminderCheck(svc, { origin, recipient }) {
     results.checked++;
 
     const windows = [
-      { leadTime: "1天前", key: `${a.id}-1d`, min: 2, max: 24 },
-      { leadTime: "2小时前", key: `${a.id}-2h`, min: 0, max: 2 },
+      { leadTime: "1 day before", key: `${a.id}-1d`, min: 2, max: 24 },
+      { leadTime: "2 hours before", key: `${a.id}-2h`, min: 0, max: 2 },
     ];
 
     for (const w of windows) {

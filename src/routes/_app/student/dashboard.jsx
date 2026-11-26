@@ -10,8 +10,8 @@ import { studentOnly } from "@/lib/routeGuards";
 export const Route = createFileRoute("/_app/student/dashboard")({
   head: () => ({
     meta: [
-      { title: "仪表板 · VTC-SAS" },
-      { name: "description", content: "课程、作业、出席与学习助手的一览总览。" },
+      { title: "Dashboard · VTC-SAS" },
+      { name: "description", content: "An overview of courses, assignments, attendance and your study assistant." },
     ],
   }),
   beforeLoad: studentOnly,
@@ -23,10 +23,10 @@ export const Route = createFileRoute("/_app/student/dashboard")({
 });
 
 const SECTIONS = [
-  { to: "/student/courses", title: "我的课程", text: "本学期的科目与上课时间。" },
-  { to: "/student/assignments", title: "我的作业", text: "截止日期、比重与提交状态。" },
-  { to: "/student/attendance", title: "出席", text: "每节课的出席记录与统计。" },
-  { to: "/student/chat", title: "Chatbot", text: "用对话查询你的学业安排。" },
+  { to: "/student/courses", title: "My Courses", text: "This semester's subjects and class times." },
+  { to: "/student/assignments", title: "My Assignments", text: "Deadlines, weightings and submission status." },
+  { to: "/student/attendance", title: "Attendance", text: "Per-class attendance records and statistics." },
+  { to: "/student/chat", title: "Chatbot", text: "Ask about your academic schedule in conversation." },
 ];
 
 function DashboardPage() {
@@ -40,27 +40,27 @@ function DashboardPage() {
     <div className="space-y-10">
       <PageHeader
         eyebrow="VTC-SAS"
-        title="仪表板"
-        description="课程、作业与出席不再分散在 Moodle、邮件和试算表之间。"
+        title="Dashboard"
+        description="Courses, assignments and attendance, no longer scattered across Moodle, email and spreadsheets."
       />
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-6">
           {next ? (
             <div className="rounded-2xl border border-border/80 bg-card p-6 sm:p-8">
-              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary/70">最近到期</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-primary/70">Due next</p>
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h2 className="font-heading text-2xl leading-snug text-foreground">{next.title}</h2>
                   <p className="mt-1.5 text-sm text-muted-foreground">
-                    {courseByCode[next.courseCode]?.name} · {dueLabel(next.due)} · 占总评 {next.weight}%
+                    {courseByCode[next.courseCode]?.name} · {dueLabel(next.due)} · {next.weight}% of final grade
                   </p>
                 </div>
                 <Link
                   to="/student/assignments"
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
-                  查看全部作业
+                  View all assignments
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
