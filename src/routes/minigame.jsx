@@ -7,7 +7,7 @@ export const Route = createFileRoute("/minigame")({
   ssr: false,
   beforeLoad: async ({ context, location }) => {
     const { user } = await requireSignedIn({ context, location });
-    if (user.role !== "user") throw redirect({ to: "/teacher" });
+    if (user.role !== "user") throw redirect({ to: "/" });
   },
   errorComponent: AuthGateError,
   head: () => ({
