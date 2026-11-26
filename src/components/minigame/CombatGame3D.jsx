@@ -224,7 +224,7 @@ export default function CombatGame3D({ fullscreen = false }) {
       {phase === "active" && (
         <button
           onClick={() => sceneRef.current?.resetView?.()}
-          className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-slate-900/70 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md transition-colors hover:border-cyan-300/60 hover:text-cyan-100"
+          className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-slate-900/70 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-cyan-200 backdrop-blur-md transition-colors hover:border-cyan-300/60 hover:text-cyan-100"
         >
           <RefreshCw className="h-3.5 w-3.5" /> Reset view
         </button>
@@ -294,7 +294,7 @@ export default function CombatGame3D({ fullscreen = false }) {
 
       {/* question + options — side panel on desktop, bottom on mobile */}
       {phase === "active" && (
-        <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:bottom-4 sm:inset-x-auto sm:left-1/2 sm:w-[380px] sm:-translate-x-1/2 sm:p-4">
+        <div className="absolute inset-x-0 bottom-0 z-10 p-3 sm:inset-x-auto sm:right-4 sm:top-1/2 sm:bottom-auto sm:w-[330px] sm:-translate-y-1/2 sm:p-4">
           <div
             key={qIndex}
             className="rounded-2xl border border-cyan-300/30 bg-slate-900/75 p-4 backdrop-blur-md"
