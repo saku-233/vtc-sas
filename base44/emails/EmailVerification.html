@@ -1,127 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email verification</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; }
-        .brand-logo {
-            display: block;
-            width: auto;
-            height: auto;
-            max-width: 64px;
-            max-height: 64px;
-            border: 0;
-        }
-        @media only screen and (max-width: 600px) {
-            .outer-cell { padding: 16px 12px 0 !important; }
-            .brand-header { padding: 32px 28px !important; }
-            .content-wrap { padding: 24px 20px 28px !important; }
-            .content-card { padding: 32px 24px !important; }
-            .mobile-text { font-size: 16px !important; line-height: 1.5 !important; }
-            .footer-cell { padding: 24px 20px 30px !important; }
-        }
-    </style>
-<!--[if !mso]><!--><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" type="text/css"><!--<![endif]--></head>
-<body style="margin:0;padding:0;background-color:#fcfaf8;font-family:Inter, Helvetica, Arial, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-    <span style="display:none;font-size:1px;color:#fcfaf8;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-        Your verification code
-    </span>
-
-    
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#fcfaf8;font-family:Inter, Helvetica, Arial, sans-serif;">
-        <tr>
-            <td align="center" class="outer-cell" style="padding:24px 12px 0;">
-                <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" align="center"><tr><td><![endif]-->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" align="center" class="email-shell" style="width:100%;max-width:600px;margin:0 auto;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:24px;overflow:hidden;">
-                    <tr>
-                        <td class="brand-header" style="padding:38px 28px 34px;background-color:#1b2327;color:#ffffff;text-align:left;border-bottom:3px solid #1b2327;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                                <tr>
-                                    
-                                    <td style="padding:0 18px 0 0;vertical-align:middle;">
-                                        <!-- White chip so a logo with its own (often dark) background reads as an intentional badge, not a raw box bleeding into the header band. -->
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
-                                            <td style="background-color:#ffffff;border-radius:24px;padding:8px;line-height:0;font-size:0;">
-                                                <img src="https://media.base44.com/images/public/6afe60c183d2b0cd3452a1be/86941fd5f_logo.png" alt="VTC-SAS-ITE14115-fyp" class="brand-logo" style="display:block;width:auto;height:auto;max-width:44px;max-height:44px;border:0;" />
-                                            </td>
-                                        </tr></table>
-                                    </td>
-                                    
-                                    <td style="vertical-align:middle;">
-                                        <div style="font-family:Inter, Helvetica, Arial, sans-serif;font-size:28px;font-weight:700;line-height:1.05;letter-spacing:-0.5px;text-transform:uppercase;color:#ffffff;">
-                                            VTC-SAS-ITE14115-fyp
-                                        </div>
-                                        
-                                        <div style="margin-top:14px;font-family:Inter, Helvetica, Arial, sans-serif;font-size:11px;font-weight:500;line-height:1.4;letter-spacing:3.5px;text-transform:uppercase;color:#ffffff;opacity:0.72;">
-                                            为VTC学生打造的智能学术日程管理工具，提供课程追踪、作业管理及出勤查询，高效规划学习生活。
-                                        </div>
-                                        
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td class="content-wrap" style="padding:28px 20px 34px;background-color:#ffffff;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #e5e7eb;border-radius:24px;background-color:#ffffff;">
-                                <tr>
-                                    <td class="content-card" style="padding:40px 24px;">
-                                        <h1 class="mobile-text" style="font-family:Inter, Helvetica, Arial, sans-serif;font-size:16px;font-weight:500;color:#1b2327;margin:0 0 20px;line-height:1.3;">
-                                            Hey {{first_name}},
-                                        </h1>
-
-                                        
-                                        <p class="mobile-text" style="color:#1b2327;font-size:16px;margin:0 0 20px;line-height:22px;">
-                                            Use this verification code to finish setting up your account for VTC-SAS-ITE14115-fyp:
-                                        </p>
-
-                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin:30px 0;">
-                                            <tr>
-                                                <td style="background-color:#f8f9fa;border-radius:24px;padding:30px 12px;text-align:center;">
-                                                    <!-- The OTP renders on ``muted_surface_color``. ``primary_color`` is only contrast-checked against the CTA-button background, never against the muted surface, so a low-contrast published ``--primary`` would be unreadable here. Use ``text_color`` — the foreground already paired with ``muted_surface_color`` for the reset-box helper text and the invite "About" card. -->
-                                                    <div style="font-family:Inter, Helvetica, Arial, sans-serif;font-size:36px;font-weight:700;letter-spacing:8px;line-height:1.2;color:#1b2327;">
-                                                        {{otp_code}}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                        <p class="mobile-text" style="color:#1b2327;font-size:16px;margin:0 0 20px;line-height:22px;">
-                                            This code will expire in <strong>10 minutes.</strong>
-                                        </p>
-
-                                        <p style="color:#68767d;font-size:14px;margin:0 0 30px;line-height:19px;">
-                                            If you didn’t request this code, you can safely ignore this email.
-                                        </p>
-
-                                        <p class="mobile-text" style="color:#1b2327;font-size:16px;margin:30px 0 0;line-height:22px;">
-                                            Welcome,<br>
-                                            The VTC-SAS-ITE14115-fyp Team
-                                        </p>
-                                        
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-                <!--[if mso]></td></tr></table><![endif]-->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify your email</title>
+</head>
+<body style="margin:0;padding:0;background-color:#fcfaf8;font-family:'Inter',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fcfaf8;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:24px;">
+          <tr>
+            <td style="padding:40px 36px 4px 36px;">
+              <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#265e53;">{{app_name}}</p>
+              <h1 style="margin:0;font-size:24px;line-height:1.2;color:#1b2327;font-weight:700;">Verify your email</h1>
             </td>
-        </tr>
-    </table>
-
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#fcfaf8;">
-        <tr>
-            <td align="center" class="footer-cell" style="padding:28px 20px 34px;">
-                <p style="max-width:600px;margin:0;color:#68767d;font-size:12px;font-family:Inter, Helvetica, Arial, sans-serif;line-height:18px;text-align:center;">
-                    This is a system-generated account email from VTC-SAS-ITE14115-fyp. Replies to this email address are not monitored.
-                </p>
+          </tr>
+          <tr>
+            <td style="padding:12px 36px 4px 36px;">
+              <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#1b2327;">Hi {{first_name}},</p>
+              <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#1b2327;">Use the code below to verify your email address for {{app_name}}. This code expires in 10 minutes.</p>
             </td>
-        </tr>
-    </table>
+          </tr>
+          <tr>
+            <td align="center" style="padding:8px 36px 24px 36px;">
+              <div style="display:inline-block;padding:18px 36px;background-color:#265e53;border-radius:16px;">
+                <span style="font-size:34px;font-weight:700;letter-spacing:8px;color:#fcfaf8;font-family:'Inter',Arial,sans-serif;">{{otp_code}}</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 36px 36px 36px;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#68767d;">If you did not create an account, you can safely ignore this email.</p>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:20px 0 0 0;font-size:12px;color:#68767d;">{{app_name}}</p>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
