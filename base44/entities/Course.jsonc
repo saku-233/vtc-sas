@@ -1,0 +1,58 @@
+{
+  "name": "Course",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "instructor": {
+      "type": "string"
+    },
+    "scheduleDay": {
+      "type": "string"
+    },
+    "startTime": {
+      "type": "string"
+    },
+    "endTime": {
+      "type": "string"
+    },
+    "room": {
+      "type": "string"
+    },
+    "credits": {
+      "type": "number"
+    },
+    "students": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "code",
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

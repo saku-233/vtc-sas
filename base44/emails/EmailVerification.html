@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify your email</title>
+</head>
+<body style="margin:0;padding:0;background-color:#fcfaf8;font-family:'Inter',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fcfaf8;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:24px;">
+          <tr>
+            <td style="padding:40px 36px 4px 36px;">
+              <p style="margin:0 0 6px 0;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#265e53;">{{app_name}}</p>
+              <h1 style="margin:0;font-size:24px;line-height:1.2;color:#1b2327;font-weight:700;">Verify your email</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:12px 36px 4px 36px;">
+              <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#1b2327;">Hi {{first_name}},</p>
+              <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#1b2327;">Use the code below to verify your email address for {{app_name}}. This code expires in 10 minutes.</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:8px 36px 24px 36px;">
+              <div style="display:inline-block;padding:18px 36px;background-color:#265e53;border-radius:16px;">
+                <span style="font-size:34px;font-weight:700;letter-spacing:8px;color:#fcfaf8;font-family:'Inter',Arial,sans-serif;">{{otp_code}}</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 36px 36px 36px;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#68767d;">If you did not create an account, you can safely ignore this email.</p>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:20px 0 0 0;font-size:12px;color:#68767d;">{{app_name}}</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

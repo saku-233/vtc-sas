@@ -1,0 +1,77 @@
+{
+  "type": "object",
+  "properties": {
+    "courseCode": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "due": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enum",
+      "enum": [
+        "Not Started",
+        "In Progress",
+        "Submitted",
+        "Graded"
+      ],
+      "enumColors": [
+        "gray",
+        "yellow",
+        "blue",
+        "green"
+      ]
+    },
+    "grade": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "courseCode",
+    "title"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "Assignment"
+}

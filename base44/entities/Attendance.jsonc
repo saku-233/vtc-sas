@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "properties": {
+    "courseCode": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enum",
+      "enum": [
+        "Present",
+        "Late",
+        "Excused",
+        "Absent"
+      ],
+      "enumColors": [
+        "green",
+        "yellow",
+        "purple",
+        "red"
+      ]
+    },
+    "student": {
+      "type": "string"
+    },
+    "studentId": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "courseCode",
+    "date"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "name": "Attendance"
+}
