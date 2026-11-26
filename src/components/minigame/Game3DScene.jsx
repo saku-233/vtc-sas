@@ -381,6 +381,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
     const jetState = { roll: 0, pitch: -0.08, yaw: 0 };
     let recoil = 0;
     let missileIndex = 0;
+    let jetPosX = 0; // smoothed lateral position — removes twitch from mountain avoidance
 
     // Enemy SU-30 targets
     const targets = [];
@@ -394,7 +395,7 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       sprite.scale.set(0.9, 0.9, 0.9);
       g.add(sprite);
       g.position.set(TARGET_X[i], TARGET_Y[i], TARGET_Z);
-      g.userData = { baseY: TARGET_Y[i], alive: true, spin: 0.25 + i * 0.04, bob: i * 0.7 };
+      g.userData = { baseY: TARGET_Y[i], alive: true, spin: 0.25 + i * 0.04, bob: i * 0.7, posX: TARGET_X[i] };
       targets.push(g);
       scene.add(g);
     }
@@ -593,19 +594,23 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
 
     // Mountain avoidance: returns a lateral + vertical push away from any peak near pos
     function computeAvoid(px, py, pz) {
-      let ax = 0, ay = 0;
+      let ax = 0;
       for (let i = 0; i < peaks.length; i++) {
         const p = peaks[i].cone.position;
         const dz = p.z - pz;
-        if (dz < -3 || dz > 8) continue; // only peaks ahead or just passing
+        const dn = (dz + 3) / 11; // normalize across the [-3, 8] window
+        if (dn <= 0 || dn >= 1) continue; // only peaks ahead or just passing
         const dx = p.x - px;
         const adx = Math.abs(dx);
         if (adx > 9) continue;
-        const w = (1 - Math.min(1, Math.abs(dz) / 7)) * (1 - adx / 9);
+        const wz = dn * dn * (3 - 2 * dn); // smoothstep: 0 at both window edges, no hard cutoff
+        const w = wz * (1 - adx / 9);
         if (w <= 0) continue;
-        ax += -Math.sign(dx || (i % 2 ? 1 : -1)) * w * 2.6; // push away horizontally (no climb)
+        // continuous push direction: follows dx and passes smoothly through 0 (no sign-flip twitch)
+        const dir = adx < 0.08 ? (i % 2 ? 1 : -1) : dx / adx;
+        ax += -dir * w * 2.6;
       }
-      return { ax, ay };
+      return ax;
     }
 
     function fireAt(i, correct) {
@@ -804,8 +809,10 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
         t.visible = true;
         t.userData.alive = true;
         t.userData.attack = null;
+        t.userData.posX = TARGET_X[idx];
         t.position.set(TARGET_X[idx], TARGET_Y[idx], TARGET_Z);
       });
+      jetPosX = 0;
     }
 
     function shake() {
@@ -859,11 +866,12 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
       // Recoil pushes the jet back, then settles
       recoil *= Math.pow(0.02, dt);
 
-      const pjAv = computeAvoid(0, 0.35, jet.position.z);
-      jet.position.x = pjAv.ax * 0.5; // lateral dodge only, no climb
+      const pjAx = computeAvoid(0, 0.35, jet.position.z);
+      jetPosX += (pjAx * 0.5 - jetPosX) * (1 - Math.pow(0.0015, dt)); // smooth lateral dodge, no snap
+      jet.position.x = jetPosX;
       jet.position.y = 0.35 + Math.sin(t * 1.5) * 0.05;
       jet.position.z = 1.4 + recoil;
-      jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03 + pjAv.ax * 0.05;
+      jet.rotation.z = jetState.roll + Math.sin(t * 0.8) * 0.03 + jetPosX * 0.1;
       jet.rotation.x = jetState.pitch + Math.sin(t * 1.2) * 0.015;
       jet.rotation.y = jetState.yaw;
       (jet.userData.glows || []).forEach((gl) => gl.scale.setScalar(1 + Math.sin(t * 18) * 0.2));
@@ -975,15 +983,16 @@ const Game3DScene = forwardRef(function Game3DScene(_props, ref) {
               u * u * s.z + 2 * u * e * c.z + e * e * b.z
             );
             tg.rotation.z = -0.3 * Math.sin(Math.min(1, k) * Math.PI);
-            if (k >= 1) { tg.position.copy(atk.base); atk.phase = null; }
+            if (k >= 1) { tg.position.copy(atk.base); tg.userData.posX = atk.base.x; atk.phase = null; }
           }
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08; // stays facing forward (-z)
         } else {
           const av = computeAvoid(TARGET_X[i], tg.userData.baseY, TARGET_Z);
-          tg.position.x = TARGET_X[i] + av.ax;
+          const tx = TARGET_X[i] + av;
+          tg.userData.posX += (tx - tg.userData.posX) * (1 - Math.pow(0.0015, dt)); // smooth lateral dodge, no snap
+          tg.position.x = tg.userData.posX;
           tg.position.y = tg.userData.baseY + Math.sin(t * 1.4 + tg.userData.bob) * 0.22;
-          tg.rotation.roll = (tg.rotation.roll || 0) + dt * tg.userData.spin;
-          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.08 + av.ax * 0.14;
+          tg.rotation.z = Math.sin(t * 0.6 + i) * 0.08 + (tg.userData.posX - TARGET_X[i]) * 0.14;
           tg.rotation.y = Math.sin(t * 0.5 + i) * 0.08;
         }
       });
