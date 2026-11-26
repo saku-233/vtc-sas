@@ -24,7 +24,7 @@ function MinigamePage() {
     <div className="fixed inset-0 z-50 h-screen w-screen bg-black">
       <CombatGame3D fullscreen />
       <Link
-        to="/"
+        to="/student/dashboard"
         className="absolute left-4 top-4 z-30 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 font-mono text-[12px] uppercase tracking-[0.18em] text-white backdrop-blur-md transition-colors hover:bg-white/20"
       >
         <ArrowLeft className="h-4 w-4" /> Exit
