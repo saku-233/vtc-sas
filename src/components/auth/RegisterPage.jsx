@@ -185,6 +185,8 @@ export function RegisterPage() {
     <AuthLayout icon={UserPlus} title="Create your account" subtitle="Pick a role to start">
       <RolePicker />
       <AuthError>{error}</AuthError>
+      <GoogleButton returnTo={returnTo} onError={setError} />
+      <OrDivider />
       <form onSubmit={register} className="mt-4 space-y-4">
         <div className="space-y-2">
           <Label htmlFor="register-email">Email</Label>
